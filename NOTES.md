@@ -264,9 +264,9 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
   nicht PS1 – unbrauchbar. Nur 80065DA0 / 30065A22 sind PS1-Format, unbestätigt.
 - ~~game.toml enthält den absoluten Disc-Pfad~~ → erledigt 2026-11-05:
   Platzhalter disc/game.cue.
-- Git-Historie: Commits d469c64 (Spiel-C) und 08f5de1 (Cheats.txt) enthalten
-  noch die entfernten Dateien. Vor jedem Push Historie bereinigen (Nutzer
-  entscheidet).
+- ~~Git-Historie enthält entfernte Dateien~~ → erledigt 2026-11-06: per
+  filter-branch generated/ und docs/reference/ aus allen Commits entfernt,
+  reflog/gc bereinigt (Pack 633 KB). Alle Commit-Hashes haben sich geändert.
 - Ist Track 1 Redump-verifiziert? (MD5 oben gegen redump.org abgleichen)
 - FMV-Bild endet rechts ~25 px (bei 1127 px Fensterbreite) vor dem Rand,
   links nicht → mit DuckStation vergleichen (Display-Bereich/Offset?).
