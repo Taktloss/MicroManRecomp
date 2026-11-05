@@ -173,6 +173,29 @@ mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
 - Secret Options schalten echte Spielmodi frei (z. B. Turbo, Slow CPUs);
   Speichern auf Memory Card behält die Freischaltung vermutlich (ungeprüft).
 
+### Phase 4 – Netplay (2026-11-06)
+- Lokaler 2-Peer-Test: zwei Instanzen, `--net-slot 0/1 --net-bind
+  127.0.0.1:7777/7778 --net-peer … --net-session-id 4242 --debug-port
+  4370/4371`. Verbindung steht, 2 Spieler, Ticks gleich, desync 0. CLI
+  startet Delay-Sync; Rollback per `PSX_NET_MODE=rollback`.
+- Im Netplay: "mods cleared for netplay (vanilla session)" – Cheats sind im
+  LAN/CLI-Netplay also aus (Host-Plan nur online mit content_negotiation).
+- **BLOCKER: Intro hängt im Netplay** (Delay und Rollback, beide Peers
+  identisch → kein Desync, sondern deterministischer Hänger). Erstes Video
+  (24-Bit) läuft, ab dem zweiten schwarz (Nutzer bestätigt). Messung:
+  - offline: MDEC dekodiert laufend (1069 Decodes), gp0_copy steigt stetig,
+    zweites Video ab LBA ~975, Modus 0xC0.
+  - netplay: ab Frame ~639 keine GPU-Befehle mehr; mdec_decode_count 1;
+    DMA ch1 (MDEC→RAM) 20× gestartet, 19× fertig – letzter Start von
+    INTRO.BIN 0x80086034 wird nie fertig (MDEC output_size 0); ch0 (RAM→MDEC)
+    nur 3×. CD liest weiter dieselben Sektoren im selben Tempo wie offline.
+  - Pad-Abfrage normal (beide Ports digitales Pad). Kein CD-Speed-Mod
+    offline aktiv. Start im ersten Video überspringt nicht.
+  - Vermutung (ungeprüft): netplay-spezifische CD/FMV-Logik im Framework
+    (cdrom_fmv_stream_pending / invent-off, ROLLBACK_MOTK_HOOKUP.md) liefert
+    die STR-Sektoren nicht wie offline an das Spiel aus. Framework-Thema →
+    Ursache weiter eingrenzen, Fix nur mit Zustimmung des Nutzers.
+
 ### Disc
 - Redump-Dump, 2 Tracks: Track 1 MODE2/2352 (Daten), Track 2 AUDIO.
   → für Netplay: require_cue = true, required_tracks = 2.
