@@ -1,0 +1,43 @@
+format_version = 11
+id = "mmr.cheats"
+version = "1.0.0"
+name = "Micro Maniacs Cheats"
+author = "MicroManRecomp"
+description = "Cheats for Micro Maniacs (PAL, SLES-01921). They change game logic, so in netplay the host's selection applies to every player."
+license = "PolyForm-Noncommercial-1.0.0"
+resolver = "declarative"
+
+[[target]]
+game_id = "SLES-01921"
+
+[[feature]]
+id = "infinite-lives"
+name = "Infinite Lives (Player 1)"
+description = "Keeps player 1's Challenge lives at the chosen count (Action Replay 30065A22). Verified: written value shows on the lives screen."
+group = "Cheats"
+default_enabled = false
+
+[[option]]
+feature = "infinite-lives"
+id = "count"
+label = "Lives"
+type = "integer"
+min = 1
+max = 99
+step = 1
+default = 9
+
+[[plugin]]
+feature = "infinite-lives"
+id = "mmr.cheats.infinite-lives"
+
+[[feature]]
+id = "secret-options"
+name = "Unlock All Secret Options"
+description = "Makes every entry of Options > Secret Options available (Action Replay 80065DA0 FFFF); each one is still switched on there. Saving to a memory card keeps the unlock."
+group = "Cheats"
+default_enabled = false
+
+[[plugin]]
+feature = "secret-options"
+id = "mmr.cheats.secret-options"

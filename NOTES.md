@@ -7,7 +7,7 @@
 | 1     | Framework bauen             | erledigt     | 2026-11-05 |
 | 2     | Spielprojekt anlegen        | erledigt     | 2026-11-05 |
 | 3     | Lauffähigkeit               | erledigt     | 2026-11-05 |
-| 4     | Netplay 2 Spieler           | offen        |       |
+| 4     | Netplay 2 Spieler           | in Arbeit    | 2026-11-06 |
 | 5     | Multitap / mehr Spieler     | offen        |       |
 | 6     | Grafikverbesserungen        | offen        |       |
 | 7     | Später / optional           | offen        |       |
@@ -16,10 +16,8 @@ Status-Werte: offen · in Arbeit · blockiert · erledigt
 
 ## Aktueller Stand
 <!-- 2–5 Sätze: Wo stehen wir gerade, was ist der nächste Schritt? -->
-Phase 3 erledigt (2026-11-05): Menüs, Challenge, Vs (2 Pads), Memoirs,
-Optionen laufen; AOT aktiv (12 Rezepte, Interpreter-Anteil ~0,3 %). Memory
-Card Speichern/Laden vom Nutzer bestätigt. Nächster Schritt: Phase 4
-(Netplay 2 Spieler) nach OK.
+Phase 3 erledigt und vom Nutzer abgenommen (2026-11-06). Cheats als Paket
+mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
 
 ## Entscheidungen
 <!-- Format: Datum – Entscheidung – Begründung -->
@@ -153,6 +151,27 @@ Card Speichern/Laden vom Nutzer bestätigt. Nächster Schritt: Phase 4
   Optionen-OK speichert nicht. Speichern/Laden vom Nutzer manuell bestätigt
   (2026-11-05).
 - Ton: vom Nutzer bestätigt (Intro hörbar).
+
+### Cheats (2026-11-06)
+- Nutzbar aus docs/reference/Cheats.txt nur die zwei PS1-Codes; Rest ist
+  Mega-Drive ("Micro Machines"). Die Tastenkombinationen (Secret Options)
+  kennt das Spiel selbst, kein Einbau nötig.
+- 30065A22 nn = u8 Leben Spieler 1 (Challenge). Geprüft: Spiel setzt beim
+  Challenge-Start 3; 9 geschrieben → nach verlorener Trainingsrunde "LEBEN 8".
+- 80065DA0 FFFF = u16 Freischaltmaske Geheimoptionen. Geprüft: vorher leere
+  Liste, danach 12 Einträge (Unlock all characters/tracks, Infinite power-ups,
+  Motion blur, Slow CPUs, Tanks, Tough guys, Ultimate AI, Aussie mode, Turbo
+  vs freeplay, Nanomaniacs, Super slippy), jeweils "Aus".
+- Umsetzung: Paket mods/preloaded/packages/mmr.cheats (2 Features, Standard
+  aus, Option Lives 1–99, Standard 9) + trusted static plugin
+  mods/plugins/mmr_cheats.c (VBlank-Schreibzugriff, erst nach Spielstart;
+  per target_sources in CMakeLists.txt). Nicht host_only → im Netplay gilt
+  der Plan des Hosts für alle (Netplay-Grundsatz).
+- Test mit Plugin: Lives=5 → RAM 5, nach verlorener Runde "LEBEN 5";
+  Maske FFFF. Lokal per build-release/mods/state.toml aktiviert und wieder
+  zurückgesetzt.
+- Secret Options schalten echte Spielmodi frei (z. B. Turbo, Slow CPUs);
+  Speichern auf Memory Card behält die Freischaltung vermutlich (ungeprüft).
 
 ### Disc
 - Redump-Dump, 2 Tracks: Track 1 MODE2/2352 (Daten), Track 2 AUDIO.

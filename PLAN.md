@@ -112,4 +112,8 @@ Community-Projekt gibt (README, Games-Tabelle).
 ## Phase 7 – Später / optional
 - 60 FPS: nur per Zwischenbild-Interpolation, niemals Logik-Timing ändern
 - Windows-Build
+- Installer-Paket: Setup-Programm (ohne Spielcode) + psxrecomp-Werkzeuge +
+  Konfiguration; fragt beim ersten Start nach der eigenen Disc, erzeugt den
+  Spielcode lokal, holt bei Bedarf die Toolchain (cmake-clang-v1) und baut
+  das Spiel. Spieler braucht nur Python 3. Für Linux und Windows zusammen.
 - Overlay-Abdeckung Richtung 100 % nativ treiben

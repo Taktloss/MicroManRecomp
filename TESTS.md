@@ -38,6 +38,13 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
 - [ ] Unterschiedliche visuelle Einstellungen bei den Spielern verursachen
       keinen Desync
 
+## G – Cheats (Paket mmr.cheats)
+- [ ] Infinite Lives an: Leben bleiben nach verlorener Runde auf dem
+      eingestellten Wert (Option "Lives")
+- [ ] Secret Options an: alle 12 Einträge unter Optionen > Geheimoptionen
+- [ ] Beide aus: Spiel verhält sich wie das Original (Leben sinken)
+- [ ] (ab Phase 4) Netplay: Cheat-Auswahl des Hosts gilt für alle, kein Desync
+
 ## E – Grafik (ab Phase 6)
 - [ ] Supersampling 1x / 2x / 4x: Darstellung korrekt, keine Artefakte
 - [ ] geometry_correction an/aus: kein Polygonwackeln mehr, nichts kaputt
