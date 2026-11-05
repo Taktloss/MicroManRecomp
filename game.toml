@@ -1,0 +1,54 @@
+# Autofilled by tools/new_project_layout/probe_disc.py from your legal dump.
+# Review before shipping. Runtime quirks / overlay seeds still need hand work.
+
+[game]
+name = "Micro Maniacs"
+id = "SLES-01921"
+players = 8
+exe = "disc/SLES_019.21"
+disc = "/home/taktloss/dumps/Micro Maniacs(Europe)(En,Fr,De,Es,It)/Micro Maniacs (Europe) (En,Fr,De,Es,It).cue"
+load_address = "0x80010000"
+entry_pc = "0x80050ED0"
+text_size = "0x000BA000"
+stack_base = "0x801FFFF0"
+
+# Digests are for data Track 01 (first BINARY FILE / TRACK 01).
+[prepare_disc]
+out_dir = "disc"
+bin_name = "Micro Maniacs (Europe) (En,Fr,De,Es,It) (Track 1).bin"
+cue_name = "Micro Maniacs (Europe) (En,Fr,De,Es,It).cue"
+boot_exe = "SLES_019.21"
+known_sizes = [512569008]
+known_md5 = [
+  "4c99e78b0218cbf75967a9a33daae8e5",
+]
+known_sha1 = [
+  "b6b93c7d3377f9d6415f4544d359e86d43613922",
+]
+known_crc32 = [
+  "b63b5ce0",
+]
+
+[recompiler]
+seeds = "seeds/ghidra_funcs.txt"
+out_dir = "generated"
+strict = true
+
+[runtime]
+window_title = "Micro Maniacs Recompiled"
+memcard_dir = "saves"
+overlay_cache = true
+
+[video]
+renderer = "opengl"
+aspect_ratio = "4:3"
+
+[controller]
+default_mode = "digital"
+
+# Online mount gate: digests + track count + optional TOC fingerprint
+# (see docs/NETPLAY.md).
+[netplay]
+require_cue = true
+required_tracks = 2
+required_disc_fp = "58b1ce194e508390800eabad0977879fd538673110938e19732c832c061fa3a4"

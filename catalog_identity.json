@@ -1,0 +1,46 @@
+{
+  "format_version": 1,
+  "game": {
+    "name": "Micro Maniacs",
+    "id": "SLES-01921",
+    "boot_exe": "SLES_019.21"
+  },
+  "marketing": {
+    "description": "Native PC port of Micro Maniacs (PS1) with online multiplayer",
+    "publisher": "Codemasters",
+    "year": "2000",
+    "region": "Europe",
+    "players": 8
+  },
+  "rom_identity": {
+    "cue_name": "Micro Maniacs (Europe) (En,Fr,De,Es,It).cue",
+    "bin_name": "Micro Maniacs (Europe) (En,Fr,De,Es,It) (Track 1).bin",
+    "track_counts": [
+      2
+    ],
+    "require_cue": true,
+    "data_track": {
+      "size": 512569008,
+      "md5": "4c99e78b0218cbf75967a9a33daae8e5",
+      "sha1": "b6b93c7d3377f9d6415f4544d359e86d43613922",
+      "crc32": "b63b5ce0"
+    },
+    "disc_fp": "58b1ce194e508390800eabad0977879fd538673110938e19732c832c061fa3a4"
+  },
+  "exe": {
+    "load_address": "0x80010000",
+    "entry_pc": "0x80050ED0",
+    "text_size": "0x000BA000",
+    "stack_base": "0x801FFFF0"
+  },
+  "seeds": {
+    "count": 648,
+    "source": "boot_exe_jal"
+  },
+  "warnings": [],
+  "notes": [
+    "entry_pc/load_address/text_size/stack_base taken from PS-X EXE header.",
+    "seeds are first-pass boot-EXE JAL targets (+ entry); expect to grow as overlays / runtime paths are discovered.",
+    "required_disc_fp is psxrecomp-toc-v1 (matches runtime DiscIdentity)."
+  ]
+}

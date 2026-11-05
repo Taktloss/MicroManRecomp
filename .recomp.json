@@ -1,0 +1,13 @@
+{
+  "$schema": "https://recomp.fyi/schema/v1.json",
+  "game": "Micro Maniacs",
+  "system": "PS1",
+  "type": "recomp",
+  "toolchain": "psxrecomp",
+  "status": "exploring",
+  "project": "Micro Maniacs Recomp",
+  "original": {
+    "region": "Europe",
+    "serial": "SLES-01921"
+  }
+}
