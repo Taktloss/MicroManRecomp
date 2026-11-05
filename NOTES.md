@@ -243,9 +243,11 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
   visuellen Vergleich und Debugging.
 - Cheats.txt: Die "FFxxxx:yyyy"-Codes sind Mega-Drive-Format ("Micro Machines"),
   nicht PS1 – unbrauchbar. Nur 80065DA0 / 30065A22 sind PS1-Format, unbestätigt.
-- game.toml enthält den absoluten Disc-Pfad (/home/taktloss/dumps/…) und wird
-  committet – Mitspieler wählen ihre Disc im Wizard; vor einem öffentlichen
-  Push klären, ob der Pfad raus soll.
+- ~~game.toml enthält den absoluten Disc-Pfad~~ → erledigt 2026-11-05:
+  Platzhalter disc/game.cue.
+- Git-Historie: Commits d469c64 (Spiel-C) und 08f5de1 (Cheats.txt) enthalten
+  noch die entfernten Dateien. Vor jedem Push Historie bereinigen (Nutzer
+  entscheidet).
 - Ist Track 1 Redump-verifiziert? (MD5 oben gegen redump.org abgleichen)
 - FMV-Bild endet rechts ~25 px (bei 1127 px Fensterbreite) vor dem Rand,
   links nicht → mit DuckStation vergleichen (Display-Bereich/Offset?).
