@@ -36,11 +36,19 @@ Card Speichern/Laden vom Nutzer bestätigt. Nächster Schritt: Phase 4
 - 2026-11-05 – Referenzmaterial nach docs/reference/; Video und psx-spx-Kopie
   per .gitignore ausgeschlossen (Fremdmaterial, groß).
 
-- 2026-11-05: AOT-Overlay-Code (generated/overlays_static*.c, ~106 MB) wird
-  NICHT committet (gitignored). Begründung (Nutzer): Spielen setzt ohnehin die
-  eigene Disc voraus; `psxrecomp_cli.py generate` erzeugt ihn daraus. Folge:
-  Builds ohne Disc (z. B. CI) haben keine nativen Overlays → Autocompile/
-  Interpreter. Committet wird nur das Rezept aot/overlays.json.
+- 2026-11-05 (Nutzer): Nichts Urheberrechtliches ins Repo. Ganz generated/
+  (Spiel-C + AOT-Overlay-C, aus der Disc abgeleitet) und docs/reference/
+  (Cheats u. ä.) sind gitignored – Abweichung vom Scaffold, das generated/
+  committen will. Jeder Spieler stellt seine eigene Disc bereit; beim ersten
+  Start fragt der Setup-Assistent danach, erzeugt generated/ lokal und baut
+  neu. Folge: kein Prebuilt-/CI-Release ohne Disc. Committet werden nur
+  Konfiguration/Fakten (game.toml, Seeds, Symbole, aot/overlays.json mit
+  Hashes/Offsets/Dateinamen, Mods) und das Framework.
+- game.toml `disc = "disc/game.cue"` (Platzhalter, disc/ gitignored); die
+  Disc-Wahl des Assistenten landet in den Benutzereinstellungen. Lokal immer
+  `--disc <cue>` an generate/rebuild/Spiel übergeben.
+- Getestet: frischer Klon ohne generated/ baut den Setup-Host; Launcher zeigt
+  "First-run setup", Disc "Needed", Generate & rebuild erst nach Disc-Wahl.
 
 ## Erkenntnisse
 <!-- Technische Fakten zum Spiel/Framework, die sich bestätigt haben.
