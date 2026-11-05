@@ -51,9 +51,12 @@ You must own the original game. Disc images under `disc/` are gitignored and
 must never be committed. Retail BIOS dumps are not redistributed and no C
 derived from one may be committed; releases run on the bundled MIT OpenBIOS.
 
-`generated/` (the recompiled game C) **is committed**: releases ship the
-compiled game, built by CI from that tree. Regenerate and commit it whenever
-seeds or the framework pin change.
+`generated/` (the recompiled game C) is **not** committed: it is derived from
+the copyrighted disc. This repository holds only configuration (game.toml,
+seeds, AOT profile, mods) and the framework. On first start the setup wizard
+asks for your own disc, generates the game C locally and rebuilds; developers
+run `psxrecomp_cli.py generate` themselves. Consequently there is no disc-less
+prebuilt/CI release path.
 
 Default app icon: `assets/psxrecomp.ico` (and `.png` / `.svg`) — Retro-themed controller mark from `psxrecomp/assets/`. Windows builds embed it via `APP_ICON`.
 
@@ -68,7 +71,7 @@ git submodule update --init --recursive
 ./psxrecomp/tools/ci/build_emitters.sh
 python3 psxrecomp/psxrecomp_cli.py generate \
   --config game.toml --project-root . --disc disc/<your>.cue
-git add generated && git commit -m "Regenerate game C"
+# generated/ stays local (gitignored); never commit it.
 # Configures, builds, and stages overlay_toolchain/ beside the runtime so
 # streamed overlays can be compiled to native shards (a bare cmake build
 # skips that stage and leaves every overlay gap interpreted).

@@ -14,8 +14,9 @@ project(Micro_Maniacs_Recomp LANGUAGES C CXX)
 # --- Opt-in product surfaces (OFF by default in the framework) -------------
 # Scaffold prompts / flags fill these. Without recomp-ui, PSX_RECOMP_UI is OFF.
 # The wizard (WIZARD_CMAKE_BLOCK / ENABLE_SETUP_WIZARD) is the first-run disc
-# picker; releases are compiled from the committed generated/ C, so it never
-# needs to generate or rebuild anything on a player's machine.
+# picker. MicroManRecomp commits no game C (it is derived from the copyrighted
+# disc): without generated/ this builds the setup host, which asks for the
+# player's own disc, generates the game C locally and rebuilds.
 # recomp-ui submodule present (PSX_RECOMP_UI defaults ON).
 if(EXISTS "${PSXRECOMP_ROOT}/lib/recomp-net/CMakeLists.txt")
     set(PSX_NETPLAY ON CACHE BOOL
@@ -47,9 +48,9 @@ psxrecomp_add_game_runtime(psx-runtime
     MAX_PLAYERS 8
     # LAUNCHER_BOXART "${CMAKE_CURRENT_SOURCE_DIR}/launcher_assets/img/boxart.tga"
     APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/assets/psxrecomp.ico"
-    # Committed game C (psxrecomp_cli.py generate; git add generated). Release
-    # CI configures with -DPSXRECOMP_REQUIRE_GAME_C=ON so a checkout without
-    # it fails instead of building a setup host.
+    # Game C from the player's own disc (psxrecomp_cli.py generate / setup
+    # wizard); gitignored. Never configure with -DPSXRECOMP_REQUIRE_GAME_C=ON
+    # for a fresh checkout: without game C it must build the setup host.
     # AOT overlay shard from aot/overlays.json (static_output); psxrecomp_cli.py
     # generate writes it from the original disc. See docs/AOT_SHARDING.md.
     # Must stay before CODEGEN_SETUP_SOURCES (multi-value; would swallow it).
