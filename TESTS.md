@@ -1,0 +1,53 @@
+# TESTS.md – Testcheckliste Micro Maniacs Recomp
+
+Nach jeder Änderung, die Verhalten oder Darstellung betreffen kann, die
+passenden Abschnitte durchgehen. Ergebnis kurz in NOTES.md
+(Sitzungsprotokoll) festhalten. Bei Abweichungen: mit DuckStation
+vergleichen und Screenshots aus docs/reference/ heranziehen.
+
+## A – Basis (immer)
+- [ ] Projekt baut ohne Fehler und ohne neue Warnungen
+- [ ] Generierter Code ist unverändert reproduzierbar (Regenerieren ergibt
+      keinen Diff)
+- [ ] Spiel bootet bis zum Titelbild
+- [ ] Hauptmenü ist bedienbar (Tastatur und Gamepad)
+- [ ] git status: keine Spieldaten, Disc-Images, BIOS oder
+      overlay_captures.json zum Commit vorgemerkt
+
+## B – Spielablauf
+- [ ] Einzelspieler-Rennen startet, läuft durch, Ergebnisbildschirm erscheint
+- [ ] Mindestens zwei verschiedene Strecken getestet
+- [ ] Waffen/Items funktionieren
+- [ ] Musik und Soundeffekte laufen, kein Knacksen
+- [ ] Zwischensequenzen/FMVs (falls vorhanden) laufen
+- [ ] Speichern und Laden auf Memory Card funktioniert
+- [ ] Kein Absturz und kein Hänger nach 15 Minuten Spielzeit
+
+## C – Lokaler Mehrspieler
+- [ ] Vs-Modus mit 2 Gamepads
+- [ ] Vs Teams
+- [ ] (ab Phase 5) Vs mit 3–4 Spielern per Multitap
+- [ ] (ab Phase 5) Vs mit bis zu 8 Spielern
+
+## D – Netplay (ab Phase 4)
+- [ ] Lobby erstellen und beitreten funktioniert
+- [ ] Komplettes 2-Spieler-Rennen online ohne Desync
+- [ ] Mehrere Rennen hintereinander ohne Desync
+- [ ] Verhalten bei Verbindungsabbruch sauber (kein Absturz)
+- [ ] Logikrelevante Einstellungen werden für alle erzwungen
+- [ ] Unterschiedliche visuelle Einstellungen bei den Spielern verursachen
+      keinen Desync
+
+## E – Grafik (ab Phase 6)
+- [ ] Supersampling 1x / 2x / 4x: Darstellung korrekt, keine Artefakte
+- [ ] geometry_correction an/aus: kein Polygonwackeln mehr, nichts kaputt
+- [ ] perspective_texturing an/aus: Bodentexturen nicht mehr verzerrt
+- [ ] 4:3-Ausgabe bei ausgeschalteten Verbesserungen identisch zum Original
+- [ ] Widescreen: keine fehlenden Objekte am Bildrand (Culling)
+- [ ] Widescreen im Vs-Modus: verhält sich wie in NOTES.md entschieden
+- [ ] Optionen über den Launcher änderbar und gespeichert
+
+## F – Performance
+- [ ] Volle Bildrate im Rennen (50 Hz PAL bzw. 60 Hz NTSC)
+- [ ] Keine Ruckler beim Laden neuer Bereiche (Overlays)
+- [ ] Anteil Interpreter vs. nativ notiert (Ziel: Interpreter möglichst leer)

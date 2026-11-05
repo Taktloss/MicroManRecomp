@@ -90,3 +90,9 @@ starvation_dump.jsonl
 !/disc_probe.*.json
 !/disc_set.json
 !/.recomp.json
+
+# Reference material from third parties / the original game (MicroManRecomp):
+# gameplay video of the original disc and the psx-spx page copy stay local.
+/docs/reference/*.mp4
+/docs/reference/*.mkv
+/docs/reference/PSXSPX*
