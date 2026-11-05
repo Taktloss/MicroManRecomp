@@ -6,7 +6,7 @@
 | 0     | Vorbereitung / Docs lesen   | erledigt     | 2026-11-05 |
 | 1     | Framework bauen             | erledigt     | 2026-11-05 |
 | 2     | Spielprojekt anlegen        | erledigt     | 2026-11-05 |
-| 3     | Lauffähigkeit               | offen        |       |
+| 3     | Lauffähigkeit               | erledigt     | 2026-11-05 |
 | 4     | Netplay 2 Spieler           | offen        |       |
 | 5     | Multitap / mehr Spieler     | offen        |       |
 | 6     | Grafikverbesserungen        | offen        |       |
@@ -16,11 +16,10 @@ Status-Werte: offen · in Arbeit · blockiert · erledigt
 
 ## Aktueller Stand
 <!-- 2–5 Sätze: Wo stehen wir gerade, was ist der nächste Schritt? -->
-Phase 2 erledigt (2026-11-05): Projekt in ~/Projects/MicroManRecomp angelegt,
-generiert und gebaut (build-release/Micro_Maniacs__Recompiled). Das Spiel bootet
-mit OpenBIOS ohne Eingabe durch das Intro-FMV bis ins Hauptmenü (~190 s).
-Noch nichts committet (nur Scaffold-Initial-Commit). Nächster Schritt:
-Commit freigeben, dann Phase 3 (Menüs, Rennen, Vs, Overlays, Memory Card).
+Phase 3 erledigt (2026-11-05): Menüs, Challenge, Vs (2 Pads), Memoirs,
+Optionen laufen; AOT aktiv (12 Rezepte, Interpreter-Anteil ~0,3 %). Memory
+Card Speichern/Laden vom Nutzer bestätigt. Nächster Schritt: Phase 4
+(Netplay 2 Spieler) nach OK.
 
 ## Entscheidungen
 <!-- Format: Datum – Entscheidung – Begründung -->
@@ -36,6 +35,12 @@ Commit freigeben, dann Phase 3 (Menüs, Rennen, Vs, Overlays, Memory Card).
   GitHub-Repo, keine Boxart (nachholbar).
 - 2026-11-05 – Referenzmaterial nach docs/reference/; Video und psx-spx-Kopie
   per .gitignore ausgeschlossen (Fremdmaterial, groß).
+
+- 2026-11-05: AOT-Overlay-Code (generated/overlays_static*.c, ~106 MB) wird
+  NICHT committet (gitignored). Begründung (Nutzer): Spielen setzt ohnehin die
+  eigene Disc voraus; `psxrecomp_cli.py generate` erzeugt ihn daraus. Folge:
+  Builds ohne Disc (z. B. CI) haben keine nativen Overlays → Autocompile/
+  Interpreter. Committet wird nur das Rezept aot/overlays.json.
 
 ## Erkenntnisse
 <!-- Technische Fakten zum Spiel/Framework, die sich bestätigt haben.
@@ -107,6 +112,40 @@ Commit freigeben, dann Phase 3 (Menüs, Rennen, Vs, Overlays, Memory Card).
   nennt RX 6800 XT.
 - Screenshots: spectacle -b -n -a (KDE Wayland) funktioniert.
 
+### Phase 3 – Tests (2026-11-05)
+- Debugserver auch im Release-Build: `PSX_DEBUG_SERVER=1`, Port 4370 (nur
+  127.0.0.1). Hilfsskript im Scratchpad (dbg.py): press/seq/shot/ram.
+  `press` nimmt das PS1-Tastenwort aktiv-low (Start 0xFFF7, X 0xBFFF).
+- `rebuild --cmake-extra=-DCMAKE_BUILD_TYPE=RelWithDebInfo` → build-dev/, aber
+  PSX_DEBUG_TOOLS bleibt OFF (CLI setzt es); für Tracing ggf. später klären.
+- Start drückt das Intro weg → Sprachauswahl (X = vorgewählt Englisch) →
+  Hauptmenü englisch. Ohne Eingabe landete das Spiel auf Deutsch.
+- Challenge: Charakterwahl, Streckenwahl (Mice N Easy, Training), Gegner-
+  Vorstellung (3D-Modelle), PRESS START, Rennen mit HUD/Zeit/Positionen,
+  Race Results, "Training Round Failed", nächstes Laden – alles ohne Absturz.
+- Vor AOT: dispatch_native 1,99 Mio. / interp_fallback 0,90 Mio. (~31 %).
+- Erster AOT-Versuch: INTRO.BIN (3093) und SCRIPT.BIN (2) UNSUPPORTED im
+  Generated-C-Audit – Heuristik lief in Daten. Behoben im Profil mit
+  supplemental_entries=false für diese zwei Dateien → 12/12 auditiert.
+
+- AOT eingebunden: CMake `GAME_OVERLAY_STATIC_C` mit absolutem Pfad
+  (`${CMAKE_CURRENT_SOURCE_DIR}/generated/...`) und VOR `CODEGEN_SETUP_SOURCES`
+  – dahinter wird es als Quelldatei geschluckt (Linkfehler codegen_host_*),
+  relativ wird es gegen build-release/ aufgelöst.
+- Nach AOT im Vs-Rennen: dispatch_native 205 427 / interp_fallback 700
+  (~0,3 %); Dirty-RAM-Interpreter 24 Instruktionen. Log ohne Fehler.
+- Vs-Modus: Spieler 2 per Start auf Port 2 ("1-B"), Charakterwahl geteilt,
+  Streckenwahl, Gegnervorstellung (beide PRESS START), Fly-by, gemeinsamer
+  Bildschirm, "POINT WIN!" – läuft. VS TEAMS ausgegraut (braucht vermutlich
+  Multitap/mehr Spieler → Phase 5).
+- Memory Card: LOAD GAME zeigt Slot 1-A und Slot 2 "No Micro Maniacs game data
+  found". Karten liegen beim normalen Start in <Projekt>/saves/card1.mcd,
+  card2.mcd (gitignored), nicht neben der EXE; Save-Eintrag
+  "BESLES-01921-MANAICS" (Schreibweise vom Spiel).
+  Optionen-OK speichert nicht. Speichern/Laden vom Nutzer manuell bestätigt
+  (2026-11-05).
+- Ton: vom Nutzer bestätigt (Intro hörbar).
+
 ### Disc
 - Redump-Dump, 2 Tracks: Track 1 MODE2/2352 (Daten), Track 2 AUDIO.
   → für Netplay: require_cue = true, required_tracks = 2.
@@ -159,6 +198,23 @@ Commit freigeben, dann Phase 3 (Menüs, Rennen, Vs, Overlays, Memory Card).
 ### Overlays
 | Datei auf Disc | Ladeadresse | Wann geladen | nativ kompiliert? |
 |----------------|-------------|--------------|-------------------|
+| (in EXE, Header-ID 5) | 0x80084B40 | Boot (eingelinkt) | statisch (EXE) |
+| MANIACS/BIN/INTRO.BIN (84352) | 0x80084B40 (Slot 0) | Intro/FMV | AOT (35 Fkt., supplemental_entries=false) |
+| MANIACS/BIN/FRONTEND.BIN (44288) | 0x80084B40 (Slot 0) | Hauptmenü | AOT |
+| MANIACS/BIN/GAME.BIN (247840) | 0x80084B40 (Slot 0) | Rennen | AOT (im Rennen im RAM bestätigt) |
+| MANIACS/BIN/CHARSEL.BIN (32024) | 0x80084B40 (Slot 0) | Charakterwahl | AOT |
+| MANIACS/BIN/TRACKSEL.BIN (124328) | 0x80084B40 (Slot 0) | Streckenwahl | AOT |
+| MANIACS/BIN/TOURNSEL.BIN (88800) | 0x80084B40 (Slot 0) | Turnierwahl | AOT |
+| MANIACS/BIN/SCRIPT.BIN (87528) | 0x80084B40 (Slot 0) | Story/Texte | AOT (33 Fkt., supplemental_entries=false) |
+| MANIACS/BIN/MEMOIRS.BIN (50456) | 0x80084B40 (Slot 0) | Memoirs | AOT |
+| MANIACS/BIN/PRERACE.BIN (29976) | 0x800C1B60 (Slot 1) | vor dem Rennen (mit GAME) | AOT + Komposition GAME+PRERACE |
+| MANIACS/BIN/RESULTS.BIN (14488) | 0x800C1B60 (Slot 1) | Ergebnis (mit GAME) | AOT + Komposition GAME+RESULTS |
+| MANIACS/BIN/DOB_BIN.MNG, SA_BIN.MNG | ? | ? | ungeklärt (evtl. Code in 0x8016C000/0x801A8000) |
+
+Overlay-Belege (SLES_019.21): Tabelle 0x800689B8, 16-Byte-Records {slot, BIN*,
+MNG*, id}; Slot-Basistabelle 0x8006331C = [0x80084B40, 0x800C1B60]; Loader-Code
+0x80047444..0x80047A68. Dateien werden komplett inkl. 8-Byte-Header (u32 id, 0)
+geladen. Daten-Track-SHA256 ddfdbf86…a62166.
 
 ## Offene Fragen / unsichere Annahmen
 <!-- Alles, was noch nicht geklärt ist. Erledigtes nach "Erkenntnisse"
@@ -188,7 +244,7 @@ Commit freigeben, dann Phase 3 (Menüs, Rennen, Vs, Overlays, Memory Card).
 - Sprache: Spiel startete direkt auf Deutsch ohne Sprachauswahl – woher kommt
   die Sprachwahl (BIOS-Spracheinstellung von OpenBIOS? Memory Card?) →
   gegen DuckStation prüfen.
-- Ton im Intro nicht von mir prüfbar – Nutzer fragen.
+- ~~Ton im Intro nicht von mir prüfbar~~ → erledigt: Nutzer hat Ton bestätigt (2026-11-05).
 - PLAN.md nennt einmal "SSLES-01921" – vermutlich Tippfehler für SLES-01921.
 - Scheiden Spieler im Vs-Modus am Bildrand aus (relevant für Widescreen)?
 

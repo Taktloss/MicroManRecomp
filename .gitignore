@@ -96,3 +96,8 @@ starvation_dump.jsonl
 /docs/reference/*.mp4
 /docs/reference/*.mkv
 /docs/reference/PSXSPX*
+
+# AOT overlay shard (MicroManRecomp): built from the player's own disc by
+# `psxrecomp_cli.py generate` (aot/overlays.json static_output), not committed.
+/generated/overlays_static*.c
+/generated/AOT_STATIC_AUDIT.json

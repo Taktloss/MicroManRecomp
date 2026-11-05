@@ -1,0 +1,128 @@
+{
+  "schema": "psxrecomp AOT methods v1",
+  "game_id": "SLES-01921",
+  "_comment": [
+    "Micro Maniacs PAL (SLES-01921). Ten raw overlays under MANIACS/BIN/*.BIN,",
+    "each loaded whole (8-byte header included) at one of two fixed slots.",
+    "Evidence (SLES_019.21): overlay table at 0x800689B8, 16-byte records",
+    "{slot, bin name*, mng name*, next id}; slot base table at 0x8006331C =",
+    "[0x80084B40, 0x800C1B60]; loader code 0x80047444..0x80047A68 addresses",
+    "both tables. Slot 1 = PRERACE/RESULTS, slot 0 = all others.",
+    "Confirmed in a live race: GAME.BIN at 0x80084B40 and slot 1 at 0x800C1B60",
+    "(investigation only; no runtime capture is an input here)."
+  ],
+  "disc_hashes": {
+    "sha256": "ddfdbf86e1c7b001ff6a9188ce11725a9555678861d488e420ecaa27d0a62166"
+  },
+  "checks": [
+    {
+      "method": "words",
+      "file": "SLES_019.21",
+      "file_offset": "0x800",
+      "base": "0x80010000",
+      "values": {
+        "0x8006331C": "0x80084B40",
+        "0x80063320": "0x800C1B60",
+        "0x800474F4": "0x3C028006",
+        "0x800474F8": "0x2456331C",
+        "0x80047444": "0x3C038007",
+        "0x80047450": "0x246389B8",
+        "0x800689B8": "0x00000000",
+        "0x800689C8": "0x00000000",
+        "0x800689D8": "0x00000000",
+        "0x800689E8": "0x00000001",
+        "0x800689F8": "0x00000001",
+        "0x80068A08": "0x00000000",
+        "0x80068A18": "0x00000000",
+        "0x80068A28": "0x00000000",
+        "0x80068A38": "0x00000000",
+        "0x80068A48": "0x00000000"
+      }
+    },
+    {
+      "method": "pointer_strings",
+      "file": "SLES_019.21",
+      "file_offset": "0x800",
+      "base": "0x80010000",
+      "table": "0x800689BC",
+      "stride": 16,
+      "strings": [
+        "\\MANIACS\\BIN\\INTRO.BIN;1",
+        "\\MANIACS\\BIN\\FRONTEND.BIN;1",
+        "\\MANIACS\\BIN\\GAME.BIN;1",
+        "\\MANIACS\\BIN\\PRERACE.BIN;1",
+        "\\MANIACS\\BIN\\RESULTS.BIN;1",
+        "\\MANIACS\\BIN\\CHARSEL.BIN;1",
+        "\\MANIACS\\BIN\\TRACKSEL.BIN;1",
+        "\\MANIACS\\BIN\\TOURNSEL.BIN;1",
+        "\\MANIACS\\BIN\\SCRIPT.BIN;1",
+        "\\MANIACS\\BIN\\MEMOIRS.BIN;1"
+      ]
+    }
+  ],
+  "images": [
+    {
+      "method": "fixed_address_files",
+      "load_addr": "0x80084B40",
+      "allow_missing": true,
+      "files": [
+        "MANIACS/BIN/FRONTEND.BIN",
+        "MANIACS/BIN/GAME.BIN",
+        "MANIACS/BIN/CHARSEL.BIN",
+        "MANIACS/BIN/TRACKSEL.BIN",
+        "MANIACS/BIN/TOURNSEL.BIN",
+        "MANIACS/BIN/MEMOIRS.BIN"
+      ]
+    },
+    {
+      "_comment": "Default extra callable heuristics walk into data here (INTRO.BIN: IDCT/coefficient tables near 0x80086228/0x80088308; SCRIPT.BIN: pointer tables near 0x80088D30/0x80088DA8), failing the generated-C audit with UNSUPPORTED_INSTRUCTION. Prologue/leaf/JAL discovery only; the rest stays interpreted.",
+      "method": "fixed_address_files",
+      "load_addr": "0x80084B40",
+      "allow_missing": true,
+      "supplemental_entries": false,
+      "files": [
+        "MANIACS/BIN/INTRO.BIN",
+        "MANIACS/BIN/SCRIPT.BIN"
+      ]
+    },
+    {
+      "method": "fixed_address_files",
+      "load_addr": "0x800C1B60",
+      "allow_missing": true,
+      "files": [
+        "MANIACS/BIN/PRERACE.BIN",
+        "MANIACS/BIN/RESULTS.BIN"
+      ]
+    }
+  ],
+  "generic_exclude_files": [
+    {
+      "files": [
+        "MANIACS/BIN/INTRO.BIN",
+        "MANIACS/BIN/FRONTEND.BIN",
+        "MANIACS/BIN/GAME.BIN",
+        "MANIACS/BIN/CHARSEL.BIN",
+        "MANIACS/BIN/TRACKSEL.BIN",
+        "MANIACS/BIN/TOURNSEL.BIN",
+        "MANIACS/BIN/SCRIPT.BIN",
+        "MANIACS/BIN/MEMOIRS.BIN",
+        "MANIACS/BIN/PRERACE.BIN",
+        "MANIACS/BIN/RESULTS.BIN"
+      ],
+      "reason": "Placed by this profile from the EXE overlay/slot tables"
+    }
+  ],
+  "compositions": [
+    {
+      "left": "MANIACS/BIN/GAME.BIN",
+      "right": [
+        "MANIACS/BIN/PRERACE.BIN",
+        "MANIACS/BIN/RESULTS.BIN"
+      ],
+      "max_gap": "0x800"
+    }
+  ],
+  "strict_bounds": true,
+  "expected_records": 12,
+  "static_output": "generated/overlays_static.c"
+}

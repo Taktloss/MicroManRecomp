@@ -50,6 +50,10 @@ psxrecomp_add_game_runtime(psx-runtime
     # Committed game C (psxrecomp_cli.py generate; git add generated). Release
     # CI configures with -DPSXRECOMP_REQUIRE_GAME_C=ON so a checkout without
     # it fails instead of building a setup host.
+    # AOT overlay shard from aot/overlays.json (static_output); psxrecomp_cli.py
+    # generate writes it from the original disc. See docs/AOT_SHARDING.md.
+    # Must stay before CODEGEN_SETUP_SOURCES (multi-value; would swallow it).
+    GAME_OVERLAY_STATIC_C "${CMAKE_CURRENT_SOURCE_DIR}/generated/overlays_static.c"
     GEN_MARKER "generated/SLES_019.21_dispatch.c"
     GEN_FULL_GLOB "generated/SLES_019.21_full_*.c"
     CODEGEN_SETUP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/codegen_setup.c"
