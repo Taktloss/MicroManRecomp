@@ -267,14 +267,21 @@ mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
     gleicher Plan → Cheats auf beiden Peers aktiv, desync 0; ungleicher Plan
     → "LAN content differs between peers", Start verweigert, nach 20 s
     zurück zur Lobby. Lobby veröffentlicht den Host-Plan (ungeprüft).
-  - LÜCKE Framework (wartet auf Zustimmung): bios_hle/fast_boot (Boot-Plan)
-    sind in PsxLobbyMatchCaps vorgesehen, werden aber vom Host nie gesetzt
-    (ae_netplay_caps_from_settings) und vom Gast nie übernommen; bei LAN/
-    Direkt nicht im Content-Gate. Test: Gast PSX_BIOS_HLE=0 → Host
-    bios_boot=HLE, Gast LLE, 24/25 Digests verschieden, netplay_status
-    desync 0, Sitzung läuft weiter. Ohne content_negotiation loggt der Host
-    "rb FIRST CORE DIVERGE sim=7", mit gar nichts. Delay-Modus meldet
-    Core-Divergenz nicht als desync.
+  - Boot-Plan-Lücke behoben (2026-11-06, freigegeben; psxrecomp 5fbfb0ac
+    auf lokalem Branch cdrom-read-seek-timing): Lobby-Host veröffentlicht
+    bios_hle/fast_boot, Gast übernimmt sie nur für die Sitzung; jeder Peer
+    faltet seinen tatsächlichen Boot-Plan (call_hle, boot_skip) ins
+    Content-Gate; Delay-Sync vergleicht Core-Digests pro Tick, 3 abweichende
+    Ticks beenden die Sitzung ("netplay_state_desync"). netplay_status:
+    core_desync, core_mismatch_ticks, core_desync_tick.
+    Geprüft: Gast PSX_BIOS_HLE=0 → content_mismatch, kein Frame läuft;
+    normale Sitzung Intro+Menüs+Rennen ~10 000 Ticks, 0 Abweichungen;
+    write_ram nur beim Gast im Rennen → beide Seiten melden Desync bei sim
+    5623 und gehen zur Lobby. Unit-Tests exit_reason/content_gate/
+    bios_hle_plan ok. Lobby-Übernahme selbst ungeprüft (braucht Lobby).
+  - Bekannt (Framework-Design): Während 24-Bit-Video mit aktivem MDEC
+    werden keine Core-Digests erzeugt; auch das Sprachmenü (Video-
+    Hintergrund) ist damit ohne Desync-Erkennung.
   - Hinweis Debug-Befehl press/set_input: Tasten active-low (0xFFFF = nichts
     gedrückt, z. B. Kreuz = 0xBFFF).
   - Weitere Videos auf der Disc: SHOWREEL.STR, 13× Figuren-STR – können

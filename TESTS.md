@@ -41,9 +41,9 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
       the other player left or stopped responding." und beendet sich ohne
       Absturz/Coredump)
 - [ ] Logikrelevante Einstellungen werden für alle erzwungen
-      (2026-11-06 teilweise: Mod-Plan ok – bei abweichendem Plan startet die
-      Sitzung nicht (content_mismatch). LÜCKE im Framework: bios_hle/fast_boot
-      werden weder übernommen noch verglichen → stille Divergenz)
+      (2026-11-06: Mod-Plan und BIOS-Boot-Plan werden abgeglichen, bei
+      Abweichung startet die Sitzung nicht (content_mismatch); Übernahme der
+      Host-Werte über die Lobby noch manuell zu prüfen)
 - [ ] Unterschiedliche visuelle Einstellungen bei den Spielern verursachen
       keinen Desync
       (2026-11-06 teilweise: Host OpenGL, Gast Software-Renderer, ganzes
