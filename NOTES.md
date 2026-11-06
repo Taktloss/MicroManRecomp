@@ -244,8 +244,19 @@ mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
     * PSX_NPX_SEEK=1 (DuckStation-Seek-Modell für ReadN/ReadS nach
       Setloc): Netplay UND offline Intro läuft, kein Desync, Rennen tritt
       nicht mehr auf (0 overwrites).
-  - Fix-Vorschlag (Framework, generisch, wartet auf Zustimmung): (1)
-    distanzabhängige Seek-Zeit, (2) Befehlsantwort-Latenz wie DuckStation.
+  - Fix (2026-11-06, vom Nutzer freigegeben, psxrecomp noch nicht
+    committet): cdrom.c read_seek_cycles() nach Beetle CalcSeekTime
+    (Distanz * clk/324000, min 20000; >= 2250 Sektoren +0,3 s; Motor aus
+    +1 s ab LBA 0), auf ReadN/ReadS nach Setloc addiert, über
+    apply_read_speed (CD-Speed-Mods wirken weiter). Standardverhalten, kein
+    game.toml-Schalter (psxrecomp/CLAUDE.md Rule -1). Zähler
+    read_seek_count/read_seek_cycles in cdrom_timing.
+    Geprüft: Netplay und offline Intro läuft, Netplay durch Sprachwahl,
+    Memory Card, Hauptmenü, Figur, Strecke bis Rennvorspann, desync 0.
+  - Offene Fragen: Beetle-Zufallsanteil (0–25000) bewusst weggelassen
+    (Determinismus). Beetle-Strafzeit beim Fortsetzen aus Pause und
+    SeekL/SeekP (weiter seek_complete_delay_cycles) noch nicht nach Beetle.
+    Befehlsantwort-Latenz (2) bleibt offen, falls weitere Probleme auftreten.
   - Weitere Videos auf der Disc: SHOWREEL.STR, 13× Figuren-STR – können
     dasselbe Rennen treffen, ungeprüft.
 
