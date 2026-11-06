@@ -32,11 +32,19 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
 ## D – Netplay (ab Phase 4)
 - [ ] Lobby erstellen und beitreten funktioniert
 - [ ] Komplettes 2-Spieler-Rennen online ohne Desync
+      (2026-11-06 lokal über 127.0.0.1 ok: Zweikampf Mice N Easy bis
+      Siegerbild/Ergebnis, desync 0; echtes Online noch offen)
 - [ ] Mehrere Rennen hintereinander ohne Desync
-- [ ] Verhalten bei Verbindungsabbruch sauber (kein Absturz)
+      (2026-11-06 lokal: 2 Rennen nacheinander, ~4 min, desync 0)
+- [x] Verhalten bei Verbindungsabbruch sauber (kein Absturz)
+      (2026-11-06: Gast per kill -9 beendet, Host meldet "The match ended:
+      the other player left or stopped responding." und beendet sich ohne
+      Absturz/Coredump)
 - [ ] Logikrelevante Einstellungen werden für alle erzwungen
 - [ ] Unterschiedliche visuelle Einstellungen bei den Spielern verursachen
       keinen Desync
+      (2026-11-06 teilweise: Host OpenGL, Gast Software-Renderer, ganzes
+      Rennen desync 0; Vulkan fällt im Netplay auf Software zurück)
 
 ## G – Cheats (Paket mmr.cheats)
 - [ ] Infinite Lives an: Leben bleiben nach verlorener Runde auf dem

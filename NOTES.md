@@ -257,6 +257,13 @@ mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
     (Determinismus). Beetle-Strafzeit beim Fortsetzen aus Pause und
     SeekL/SeekP (weiter seek_complete_delay_cycles) noch nicht nach Beetle.
     Befehlsantwort-Latenz (2) bleibt offen, falls weitere Probleme auftreten.
+  - Netplay-Tests nach dem Fix (2026-11-06, lokal 127.0.0.1, delay-Modus):
+    Zweikampf-Rennen komplett, 2 Rennen nacheinander, gemischte Renderer
+    (OpenGL/Software), Verbindungsabbruch: alles ohne Desync bzw. sauber.
+    Offen: Lobby über den Launcher (manuell), echtes Online, Erzwingen
+    logikrelevanter Einstellungen, Cheats im Netplay (TESTS G).
+  - Hinweis Debug-Befehl press/set_input: Tasten active-low (0xFFFF = nichts
+    gedrückt, z. B. Kreuz = 0xBFFF).
   - Weitere Videos auf der Disc: SHOWREEL.STR, 13× Figuren-STR – können
     dasselbe Rennen treffen, ungeprüft.
 
