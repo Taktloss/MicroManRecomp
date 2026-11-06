@@ -21,7 +21,9 @@ Phase 5 lokal fertig: Netplay mit 3–5 Spielern ohne Desync, auf 5 Spieler
 begrenzt (zwei Multitaps → Intro-Hänger im Framework-CD-Datenpfad), Tap-Pads
 digital. Phase 6 lokal fertig: Grafikoptionen über eingebaute Mods,
 Widescreen-Mod mmr.widescreen (Host-Wahl gilt im Netplay für alle).
-Offen: FSR 1 (Framework), fehlende Polygone am linken Rand.
+FSR 1 (Framework, Image Filtering → Upscaling) und Cull-Fix für die
+fehlenden Polygone am linken Rand gebaut, Framework-Änderungen noch nicht
+committet. Wartet auf OK.
 
 ## Entscheidungen
 <!-- Format: Datum – Entscheidung – Begründung -->
@@ -394,19 +396,34 @@ Offen: FSR 1 (Framework), fehlende Polygone am linken Rand.
 - Standardwerte: game.toml bleibt originalgetreu (4:3, keine Filter, kein
   PGXP); Verbesserungen wählt der Spieler über die Mods. geometry_correction
   bleibt aus/verborgen (Framework: bekannt kaputt, Risse).
-- FSR 1: im Framework nicht vorhanden (nur Internal Resolution + Filter).
-  Wäre eine generische Framework-Erweiterung → nur mit Zustimmung.
+- FSR 1 (mit Zustimmung generisch ins Framework, psxrecomp uncommittet):
+  EASU als Present-Modus (nur wenn das Bild kleiner als die Ausgabe ist),
+  RCAS als erste Post-Stufe. Mod Image Filtering: Option "upscaling"
+  (default/off/fsr1) und "fsr_sharpness" (0–100, Std. 90); game.toml
+  `[video] upscaler`/`fsr_sharpness`; Debug-Befehl `upscaler`. Pro Spieler
+  (host_only, rein visuell). Wirkt nur bei niedriger Internal Resolution
+  (1x/2x); bei 4x greift es nicht (nichts hochzuskalieren). Verstärkt das
+  PS1-Dithermuster → mit Dithering Aus empfohlen. GL-Test gl_fsr 21/21.
 - Widescreen: game.toml `[video] aspect_ratio` allein wirkt nicht mehr
   (Widescreen gehört seit S1 dem Mod-Katalog). Neues Paket mmr.widescreen
   (mods/preloaded/packages, Plugin mods/plugins/mmr_widescreen.c): setzt bei
   Aktivierung 16:9 oder "An Fenster anpassen"; Framework rendert native-wide.
   game.toml `[widescreen] gte_game_mode = true` nötig, sonst wird das Rennen
   als 2D-Szene erkannt und 4:3 mit Rändern gezeigt (game_mode 0).
-- Keine Cull-Sites gepatcht: Das EXE hat keine Bildbreiten-Vergleiche
-  (Anzeige 512 breit; kein slti/sltiu 0x200), die Strecke wird an den
-  Rändern trotzdem weitgehend gezeichnet. Einzelne fehlende Polygone am
-  linken Rand oben gesehen (offen). Ergebnis: Spiellogik rechnet identisch
-  zu 4:3 (nur Host-Zeichenversatz).
+- Fehlende Polygone am Rand (gelöst): Die Boden-/Strecken-Renderer im EXE
+  (0x8001b6xx–0x8001eexx, 8 Funktionen) lesen die SXY-Wörter per mfc2,
+  verknüpfen sie mit AND und verwerfen das Polygon bei `and mask 0xF3008600;
+  bnez` (alle X < 0, alle X ≥ 512 oder alle Y außerhalb). Neue generische
+  Cull-Art im Framework `[widescreen.cull] sxy_read_sites`: ein gelesenes X
+  im aufgedeckten Band [-m,0) gilt als 0, in [W,W+m) als W-1; sonst
+  unverändert, bei 4:3 (m=0) Identität. game.toml: 60 mfc2-Stellen,
+  clip_edge_width = 512. Geprüft: Akkumulator nach dem Branch tot, keine
+  weiteren Fold-Stellen im EXE, keine in den Overlays (Maske fehlt dort).
+  A/B im selben Bild (Debug ws_margin 0 vs. 85): schwarzer Anteil im linken
+  Rand 22,8 % → 2,2 %. Bei 4:3 ohne Mod x_margin 0.
+  Nur Zeichnen betroffen (Polygonliste), Spiellogik unverändert; im Netplay
+  gilt die Seitenverhältnis-Wahl des Hosts für alle → deterministisch.
+  Alte Savestates passen nach dem Rebuild nicht mehr (Ausführungsprofil).
 - Vs-Ausscheiden: Zurückfallender Spieler schied auf Mice N Easy am unteren
   Rand innerhalb des 4:3-Bereichs aus – Ausscheidegrenze bleibt die des
   Originals (Logik unverändert). Im breiten Bild sieht man seitlich mehr
@@ -528,8 +545,14 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
   Original-4:3-Grenze (auch mit Widescreen, Logik unverändert). Nur auf
   Mice N Easy geprüft (Ausscheiden unten); seitliches Ausscheiden auf
   anderen Strecken ungeprüft.
-- Widescreen: einzelne fehlende Polygone am linken Rand – Ursache (Culling
-  in Welt- oder Bildkoordinaten?) noch nicht untersucht.
+- ~~Widescreen: fehlende Polygone am linken Rand~~ → gelöst über
+  sxy_read_sites (Phase 6). Netplay mit dem neuen Cull nicht erneut
+  gefahren (vorher beide 16:9 desync 0); andere Strecken nicht geprüft.
+- Framework-Werkzeug: wtrace sieht keine Schreibzugriffe aus nativem Code
+  (hängt nur am langsamen Speicherpfad). Nicht behoben, Framework-Änderung.
+- Framework-Tests: 13 Recompiler-Tests schlagen schon ohne meine Änderungen
+  fehl (Upstream-Drift), eigenständiger Runtime-Build bricht an dma.c
+  (timespec_get) ab – nicht von mir, nicht angefasst.
 - Menüs/Figurenauswahl mit Widescreen nicht systematisch angesehen
   (Ladebild 3D breit, sah ok aus).
 
@@ -540,6 +563,9 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
 ## Sitzungsprotokoll
 <!-- Kurz pro Sitzung, neueste oben. Ältere Einträge gelegentlich
      zusammenfassen, damit die Datei übersichtlich bleibt. -->
+- 2026-11-06 – Phase 6 Nachtrag: FSR 1 ins Framework (generisch), neue
+  Cull-Art sxy_read_sites + 60 Stellen in game.toml → Rand-Polygone da.
+  OpenBIOS-Stempel und docs/TCP_COMMANDS.md neu erzeugt. Wartet auf OK.
 - 2026-11-06 – Phase 6: Grafikoptionen geprüft, Widescreen-Mod mmr.widescreen
   gebaut, Vs-Netplay mit Widescreen desync 0. Wartet auf OK.
 - 2026-11-05 – Phase 2 erledigt: Scaffold (--players 8, Netplay, OpenBIOS),

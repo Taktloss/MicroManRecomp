@@ -47,6 +47,75 @@ aspect_ratio = "4:3"
 [widescreen]
 gte_game_mode = true
 
+# Floor/track renderers (0x8001b6xx..0x8001eexx) reject a primitive when the
+# AND of its SXY words hits mask 0xF3008600 (all X < 0 or all X >= 512, or
+# all Y off screen). These mfc2 reads feed only that fold; while widened, an X
+# in the revealed band reads as the screen edge, so the band gets its polygons.
+[widescreen.cull]
+clip_edge_width = 512
+sxy_read_sites = [
+  "0x8001B7DC",
+  "0x8001B7E0",
+  "0x8001B7E4",
+  "0x8001B8E0",
+  "0x8001B8E4",
+  "0x8001B8E8",
+  "0x8001B9F4",
+  "0x8001B9F8",
+  "0x8001B9FC",
+  "0x8001BA20",
+  "0x8001BB08",
+  "0x8001BB0C",
+  "0x8001BB10",
+  "0x8001BB38",
+  "0x8001BC38",
+  "0x8001BC3C",
+  "0x8001BC40",
+  "0x8001BD3C",
+  "0x8001BD40",
+  "0x8001BD44",
+  "0x8001BD90",
+  "0x8001BE78",
+  "0x8001BE7C",
+  "0x8001BE80",
+  "0x8001BF78",
+  "0x8001BF8C",
+  "0x8001BF98",
+  "0x8001BFB0",
+  "0x8001C190",
+  "0x8001C194",
+  "0x8001C198",
+  "0x8001C1BC",
+  "0x8001C280",
+  "0x8001D704",
+  "0x8001D70C",
+  "0x8001D710",
+  "0x8001D734",
+  "0x8001DA04",
+  "0x8001DA0C",
+  "0x8001DA10",
+  "0x8001DA34",
+  "0x8001DD04",
+  "0x8001DD0C",
+  "0x8001DD10",
+  "0x8001DD34",
+  "0x8001E2B4",
+  "0x8001E2BC",
+  "0x8001E2C0",
+  "0x8001E2D4",
+  "0x8001E5B4",
+  "0x8001E5BC",
+  "0x8001E5C0",
+  "0x8001E5D4",
+  "0x8001E8B4",
+  "0x8001E8BC",
+  "0x8001E8C0",
+  "0x8001E8D4",
+  "0x8001EE30",
+  "0x8001EE34",
+  "0x8001EE38",
+]
+
 [controller]
 default_mode = "digital"
 # Pads on the multitap stay digital: with DualShock-on-tap the game's second

@@ -77,8 +77,11 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
       (2026-11-06: wirkt, Vergleich vom Savestate)
 - [ ] 4:3-Ausgabe bei ausgeschalteten Verbesserungen identisch zum Original
 - [ ] Widescreen: keine fehlenden Objekte am Bildrand (Culling)
-      (2026-11-06 Mod mmr.widescreen: Strecke weitgehend vollständig,
-      einzelne fehlende Polygone links oben)
+      (2026-11-06 Mod mmr.widescreen: nach sxy_read_sites-Fix Rand voll,
+      A/B schwarzer Anteil links 22,8 % → 2,2 %; nur Mice N Easy geprüft)
+- [ ] FSR 1 (Image Filtering → Upscaling): bei Internal Resolution 1x/2x
+      schärfer, keine Artefakte; bei 4x inaktiv; Dithering Aus empfohlen
+      (2026-11-06: 1x geprüft, live umschaltbar)
 - [ ] Widescreen im Vs-Modus: verhält sich wie in NOTES.md entschieden
       (2026-11-06: Ausscheiden an der 4:3-Grenze wie Original; Netplay:
       Host-Wahl gilt für alle, beide 16:9 ganzes Rennen desync 0,
