@@ -27,7 +27,11 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
 - [ ] Vs-Modus mit 2 Gamepads
 - [ ] Vs Teams
 - [ ] (ab Phase 5) Vs mit 3–4 Spielern per Multitap
+      (2026-11-06 nur über lokales Netplay geprüft: 3, 4 und 5 Spieler,
+      weitere Spieler drücken in der Figurenauswahl Start)
 - [ ] (ab Phase 5) Vs mit bis zu 8 Spielern
+      (entfällt: auf 5 Spieler begrenzt, zwei Multitaps lassen das Intro
+      hängen – Framework-CD-Datenpfad, siehe NOTES.md)
 
 ## D – Netplay (ab Phase 4)
 - [ ] Lobby erstellen und beitreten funktioniert
@@ -48,6 +52,12 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
       keinen Desync
       (2026-11-06 teilweise: Host OpenGL, Gast Software-Renderer, ganzes
       Rennen desync 0; Vulkan fällt im Netplay auf Software zurück)
+
+- [ ] (ab Phase 5) Netplay mit 3–5 Spielern ohne Desync
+      (2026-11-06 lokal über 127.0.0.1, Host als Hub: 3 Spieler Rennen
+      komplett, 4 Spieler Rennen komplett mit Ergebnis, 5 Spieler ~5 min;
+      jeweils desync 0, core_mismatch 0; echtes Online noch offen)
+- [ ] Pad 1 am Multitap reagiert (multitap_analog = false; mit true tot)
 
 ## G – Cheats (Paket mmr.cheats)
 - [ ] Infinite Lives an: Leben bleiben nach verlorener Runde auf dem

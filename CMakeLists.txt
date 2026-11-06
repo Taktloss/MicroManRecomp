@@ -45,7 +45,7 @@ psxrecomp_add_game_runtime(psx-runtime
     ENABLE_SETUP_WIZARD
     WINDOW_TITLE "Micro Maniacs  Recompiled"
     DEFAULT_GAME_CONFIG_PATH "game.toml"
-    MAX_PLAYERS 8
+    MAX_PLAYERS 5
     # LAUNCHER_BOXART "${CMAKE_CURRENT_SOURCE_DIR}/launcher_assets/img/boxart.tga"
     APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/assets/psxrecomp.ico"
     # Game C from the player's own disc (psxrecomp_cli.py generate / setup

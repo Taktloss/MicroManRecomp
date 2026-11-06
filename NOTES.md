@@ -8,7 +8,7 @@
 | 2     | Spielprojekt anlegen        | erledigt     | 2026-11-05 |
 | 3     | Lauffähigkeit               | erledigt     | 2026-11-05 |
 | 4     | Netplay 2 Spieler           | in Arbeit    | 2026-11-06 |
-| 5     | Multitap / mehr Spieler     | offen        |       |
+| 5     | Multitap / mehr Spieler     | in Arbeit    | 2026-11-06 |
 | 6     | Grafikverbesserungen        | offen        |       |
 | 7     | Später / optional           | offen        |       |
 
@@ -16,8 +16,10 @@ Status-Werte: offen · in Arbeit · blockiert · erledigt
 
 ## Aktueller Stand
 <!-- 2–5 Sätze: Wo stehen wir gerade, was ist der nächste Schritt? -->
-Phase 3 erledigt und vom Nutzer abgenommen (2026-11-06). Cheats als Paket
-mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
+Phase 4 lokal fertig (2 Spieler), offen: Lobby/echtes Online (Nutzer).
+Phase 5 lokal fertig: Netplay mit 3–5 Spielern ohne Desync, auf 5 Spieler
+begrenzt (zwei Multitaps → Intro-Hänger im Framework-CD-Datenpfad), Tap-Pads
+digital. Nächster Schritt nach OK: Phase 6 (Grafik).
 
 ## Entscheidungen
 <!-- Format: Datum – Entscheidung – Begründung -->
@@ -286,6 +288,97 @@ mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
     gedrückt, z. B. Kreuz = 0xBFFF).
   - Weitere Videos auf der Disc: SHOWREEL.STR, 13× Figuren-STR – können
     dasselbe Rennen treffen, ungeprüft.
+
+### Phase 5 – Multitap / mehr Spieler (2026-11-06)
+- Spielerzahl geklärt: Hauptmenü zeigt "Zweikampf 1 – 8 Spieler",
+  "Teamzweikampf 3 – 8 Spieler" → PAL-Version kann 8 Spieler (zwei Multitaps).
+- Beitreten: In der Figurenauswahl muss jeder weitere Spieler Start drücken
+  (Hinweis "START – VERBINDEN SIE SPIEL"), sonst teilen sich die Pads eine
+  Figur ("Gemeinsame Controller") und die übrigen Plätze fährt der Computer.
+  Start zu früh (während des Ladens der Auswahl) bricht zurück ins Hauptmenü.
+  Vor dem Rennen ("START DRÜCKEN") muss jeder Spieler Start drücken.
+- Framework: LAN-Sitzung mit 3+ Plätzen = Host als Hub (Slot 0 ohne
+  --net-peer, Gäste wählen 127.0.0.1:7777, PSX_NET_SLOTS=N auf allen),
+  architecture=host_relay. Multitap wird erzwungen (Spiel sieht ID 0x80 an
+  Port 1, Pads A–D, Anzeige "1-A".."1-D").
+- 3 Spieler lokal: Rennen Mice N Easy komplett, ~31 900 Ticks, desync 0,
+  core_mismatch 0 auf allen drei Peers.
+- BUG gefunden: Mit multitap_analog = true (Launcher-Standard, steht in
+  settings.toml und wird in die Build-game.toml geschrieben) meldet Pad 1-A
+  am Multitap dauerhaft 0xF3 (Konfigurationsmodus). Das Spiel schickt jedes
+  Frame 43 01 / 45 / 4C an Slot A, verlässt den Modus nie → Tasten von
+  Spieler 1 kommen nicht an (Menü reagiert nur auf 1-B/1-C). Mit
+  multitap_analog = false läuft alles. Ursache (Spiel vs. Framework-
+  Emulation von DualShock am Multitap) noch offen → gegen Beetle prüfen.
+  Für den Test settings.toml + build-release/game.toml vorübergehend auf
+  false (Sicherung im Scratchpad).
+- 4 Spieler lokal: Rennen Mice N Easy komplett (Punkte, Sieg, Ergebnis),
+  ~42 000 Ticks, desync 0, core_mismatch 0 auf allen vier Peers.
+- 8 Spieler lokal (zwei Multitaps): Intro hängt wieder (schwarzes Bild, CD
+  steht nach 3840 Sektoren, MDEC 1 Decode/319 Blöcke, bei Frame 748 ReadS
+  nach Setmode(0xC0) "queued") – gleiches Muster wie der alte Intro-Hänger.
+  Der Seek-Fix hat das Zeitfenster nur verschoben; die längere Pad-Abfrage
+  mit zwei Taps trifft es erneut. Echte Ursache vermutlich die fehlende
+  Befehlsantwort-Latenz: Beetle (cdc.cpp) führt Befehle erst nach
+  10500+rand(0..3000)+1815 Takten aus, verschiebt sie weiter, solange ein
+  Sektor-IRQ noch nicht quittiert ist (CDCReadyReceiveCounter), und stellt
+  asynchrone IRQs (AsyncIRQPending) erst nach der Quittierung zu. Das
+  Framework führt Befehle sofort aus. Nutzer: 8 Spieler nicht nötig.
+  Offen: Framework-Fix nach Beetle (braucht Zustimmung); dieselbe Lücke
+  kann auch mit weniger Spielern unter anderen Pad-/Zeitbedingungen
+  auftreten.
+- Nachstellung (2026-11-06): Hänger auch mit 5 Spielern (beide Taps aktiv).
+  Vergleich Frame 740–748: 4 Spieler → Setloc, Setmode(C0), ReadS sofort
+  ausgeführt, Intro läuft (167 Decodes). 5 Spieler → zwischen Setmode und
+  ReadS kommt noch ein Logo-Sektor (INT1), ReadS "queued", Intro hängt.
+- 8 Spieler zusätzlich: einmal Stillstand aller Peers bei Tick 877
+  (stall=wait_confirm), dann "other player left" (Logs scratchpad/logs8).
+  Nicht weiter verfolgt (8 Spieler nicht nötig).
+- Analyse gegen Beetle cdc.cpp: Befehlsverzögerung allein erklärt es nicht
+  (mit Beetle-Latenz wäre das Fenster eher größer). Unterschied im
+  Datenpfad: Beetle kopiert den Sektor NUR beim Schreiben von BFRD (0x80)
+  in den DMA-Puffer (und nur, wenn der leer ist); neue Sektoren landen im
+  Sektorpuffer und sind erst nach dem nächsten 0x80 lesbar. Das Framework
+  lädt bei gesetztem BFRD neue Sektoren automatisch nach (load_data_fifo(0)
+  bei Zustellung und DMA-Fortsetzung) → laufender DMA zieht 1312 Bytes vom
+  ersten INTRO-Sektor. Versuch "kein Auto-Nachladen" (nur Testschalter):
+  Spiel hängt schon vor dem Intro (Framework-DMA-Modell setzt das
+  Nachladen voraus). Echte Lösung = CD-Datenpfad (BFRD/DMA) nach Beetle
+  umbauen – größerer Framework-Eingriff, betrifft alle Spiele.
+- Entscheidung Nutzer (2026-11-06): auf 5 Spieler begrenzen (players = 5 in
+  game.toml, MAX_PLAYERS 5 in CMakeLists.txt). Unter 5 gibt es im Framework
+  keinen Multitap (sio.c: PSX_MAX_PLAYERS >= 5), mit 8 werden zwei Taps
+  benutzt (Hänger). Mit 5: ein Tap an Port 1 (1-A..1-D) + Pad an Port 2.
+  Geprüft: Intro läuft mit 5 Spielern (451 Decodes, ReadS sofort), Rennen
+  mit 5 Spielern ~5 min, desync 0, core_mismatch 0. CD-Datenpfad-Umbau
+  bleibt offen (Framework).
+- multitap_analog-Ursache (2026-11-06): Mitschnitt mit DualShock an Tap:
+  Spiel schickt direkt an Slot A 43 01, 45, 4C, 47 und nie 43 00; im
+  Sammelmodus nur 42 pro Slot (kein versteckter Exit). An direkten Ports
+  läuft die volle Folge (43 01, 45, 4C 01, 47, 4C 00, 46 00, 46 01, …) und
+  endet. Abweichungen der Framework-Antworten (sio.c, modern SM) von Beetle
+  (frontio.c DualShock):
+  * 45: Framework 03,<analog>,01,02,01,00 – Beetle 01,02,<analog>,02,01,00
+  * 46 Index 1: Framework wie Index 0 (00,01,02,00,0A) – Beetle 00,01,01,01,14
+  * 47 Index ≠ 0: Framework 00,02,00,01,00 – Beetle nur Nullen
+  * 4C Index 1: Framework 04 – Beetle 07
+  Ob diese Abweichungen den Abbruch am Tap auslösen, ist noch nicht
+  bewiesen (Fix + Test nötig, Framework → Zustimmung).
+- Fix (2026-11-06, Nutzer freigegeben, psxrecomp sio.c, nicht committet):
+  Antworten 45/46/47/4C nach Beetle (45-Layout, Index-abhängige Tails für
+  46/47/4C im modernen Zustandsautomaten; Legacy-Pfad unverändert). Neuer
+  Unit-Test sio_dualshock_config_replies_test ok; rumble/jogcon/negcon-
+  Tests ok. 2 Spieler direkt: Intro 457 Decodes, Menü, desync 0.
+  Ergebnis am Tap: Antworten jetzt Beetle-gleich, Schleife bleibt. Voller
+  Mitschnitt: Erste Einrichtung (Slot A über Tap-Methode 1) läuft komplett
+  inkl. 43 00. Sobald der Tap im Sammelmodus ist, startet das Spiel eine
+  zweite Einrichtung: 43 01, 45, 4C 00, 47 01 je einmal pro Frame, nie
+  43 00. Ursache offen (Spielcode/libpad oder Tap-Verhalten) → bräuchte
+  Disassembly oder Oracle mit Multitap+DualShock (DuckStation/Redux).
+- Entscheidung: game.toml [controller] multitap_analog = false (Tap-Pads
+  digital). Achtung: settings.toml des Launchers überschreibt game.toml;
+  steht dort true, ist Pad 1 am Tap wieder tot. Netplay übernimmt den
+  Host-Wert (match_caps.multitap_analog).
 
 ### Disc
 - Redump-Dump, 2 Tracks: Track 1 MODE2/2352 (Daten), Track 2 AUDIO.

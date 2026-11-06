@@ -4,7 +4,7 @@
 [game]
 name = "Micro Maniacs"
 id = "SLES-01921"
-players = 8
+players = 5
 exe = "disc/SLES_019.21"
 disc = "disc/game.cue"  # placeholder; the setup wizard stores the player's own disc in user settings
 load_address = "0x80010000"
@@ -45,6 +45,10 @@ aspect_ratio = "4:3"
 
 [controller]
 default_mode = "digital"
+# Pads on the multitap stay digital: with DualShock-on-tap the game's second
+# pad setup never leaves config mode and player 1 gets no input (NOTES.md,
+# Phase 5). Direct-port pads keep their DualShock behaviour.
+multitap_analog = false
 
 # Online mount gate: digests + track count + optional TOC fingerprint
 # (see docs/NETPLAY.md).
