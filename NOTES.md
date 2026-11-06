@@ -191,37 +191,39 @@ mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
     nur 3×. CD liest weiter dieselben Sektoren im selben Tempo wie offline.
   - Pad-Abfrage normal (beide Ports digitales Pad). Kein CD-Speed-Mod
     offline aktiv. Start im ersten Video überspringt nicht.
-  - Ursachenkette (2026-11-06, gemessen; Pad-Hypothese verworfen):
-    1. Pads sind NICHT die Ursache: kompletter SIO-Mitschnitt (9108 Bytes)
-       offline vs. Netplay identisch. Frühere Aussage "Pad-Bestückung" war
-       falsch (beruhte auf nur 64 Trace-Einträgen).
-    2. Emulierte Zeit identisch bis Frame 376; ab Frame 383 setzt das Spiel
-       seine CD-Befehle im Netplay +11 376 Takte später ab. DMA-Abfolge in
-       Frame 360–384 identisch; Software-Renderer offline ändert nichts;
-       Offline-Selfcheck (PSX_RB_SELFCHECK=1) und PSX_SAME_THREAD_RESTORE=1
-       im Netplay ändern nichts.
-    3. Zweite, größere Abweichung: das Logo-Video (CODELOGO.STR) wird im
-       Netplay 6 Frames früher beendet (Setloc für INTRO in Frame 634 nach
-       LBA 185655, offline Frame 640 ~18 Sektoren später), obwohl der
-       Sektorstrom nur 11k Takte versetzt ist. Was das Spiel dort zählt,
-       ist noch offen.
-    4. Kandidaten für die Zeitverschiebung: netplay-only Pfade im Framework
-       (gpu.c: vblank_callback wird an die nächste BB-Kante verschoben statt
-       sofort; interrupts.c: Halte-Regeln für MotK-PCs 0x8006CD54/0x800768C8,
-       Present-Flush an BB-Kanten). Ohne Framework-Instrumentierung nicht
-       weiter eingrenzbar.
-    5. Folge der Verschiebung: zwischen Setmode(0xC0) und ReadS trifft noch
-       ein Logo-Sektor ein; sein INT1 wird gepuffert und nach dem INT3-Ack
-       zugestellt, ReadS wird "queued". Das Spiel verarbeitet den veralteten
-       INT1, lässt BFRD (Request-Reg 0x80) gesetzt. Beim ersten INTRO-Sektor
-       zieht ein bereits laufender CD-DMA sofort 1312 Bytes, dann setzt der
-       INT1-Handler BFRD 0→0x80 (Position zurück auf 0) und der DMA liest den
-       Sektoranfang erneut → Videobild kaputt → MDEC 319/320 Blöcke → Hänger.
-    6. Abgleich DuckStation (src/core/cdrom.cpp, master): gleiches Verhalten
-       in dieser Lage (async INT1 wird nach Ack zugestellt, Befehl wartet;
-       BFRD löschen setzt Sektorposition auf 0; ReadS verwirft nur einen
-       NOCH NICHT zugestellten INT1). Das CD-Modell ist hier also nicht
-       offensichtlich falsch; DuckStation trifft das Zeitfenster nur nicht.
+  - Ursache (2026-11-06, gemessen, OFFLINE REPRODUZIERBAR):
+    1. Auslöser ist die Pad-Bestückung, nicht Netplay. Offline-Standard:
+       Multitap an Port 1 + P1 digital, Port 2 leer. Netplay (2 Spieler):
+       kein Multitap, 2 direkte Pads, als konfigurierbare DualShock im
+       Digitalmodus (psx_netplay.c setzt config_capable=1). Das Spiel probt
+       ab SIO-Byte ~10360 per 0x43/0x47/0x4C auf DualShock → andere
+       SIO-Laufzeit → ab Frame 383 +11 376 Takte, Logo-Ende 6 Frames früher.
+       (Frühere Aussage "Pads identisch" war falsch – Vergleich endete bei
+       Byte 9108, knapp vor der Abweichung.)
+    2. Offline-Nachstellung mit lokalem Messpatch (PSX_NPX=64: digitale Pads
+       konfigurierbar; settings.toml p2_device=keyboard, multitap=false):
+       Takte EXAKT wie Netplay (CD-Befehl 256 @259357412, Setloc INTRO
+       @429384378) und Intro hängt genauso. Ohne Patch (2 SCPH-1080-Pads):
+       Setloc @429384787, Intro läuft. Analog-Modus: Intro läuft.
+    3. Netplay-Sonderpfade (Present-Verschiebung gpu.c, Interrupt-Halte-
+       regeln interrupts.c) per Messschalter einzeln abgeschaltet: kein
+       Einfluss auf die Takte. Mods, Renderer, STR-Modus: kein Einfluss.
+    4. Mechanismus: zwischen Setmode(0xC0) und ReadS trifft noch ein
+       Logo-Sektor ein; sein INT1 wird nach dem INT3-Ack zugestellt, ReadS
+       "queued". Das Spiel verarbeitet den veralteten INT1 und lässt BFRD
+       (Request 0x80) gesetzt. Beim ersten INTRO-Sektor zieht ein laufender
+       CD-DMA sofort 1312 Bytes, dann setzt der Handler BFRD 0→0x80
+       (Position 0) und der DMA liest den Sektoranfang erneut → Bild kaputt
+       → MDEC 319/320 Blöcke → Spiel wartet ewig.
+    5. DuckStation (src/core/cdrom.cpp) verhält sich in genau dieser Lage
+       gleich (INT1 nach Ack zugestellt, Befehl wartet; BFRD löschen setzt
+       Position 0). Das CD-Modell ist also nicht offensichtlich falsch.
+       Offene Frage: Läuft das Intro auf echter Hardware/DuckStation mit 2
+       DualShock (Analog aus)? Wenn ja, stimmt irgendwo das Timing (SIO oder
+       CD) nicht mit echter Hardware überein → Oracle-Vergleich nötig
+       (PCSX-Redux nicht installiert; DuckStation als Flatpak vorhanden).
+  - Messpatch (nicht committet): Scratchpad npx_experiment.patch; Framework
+    danach per git checkout zurückgesetzt.
   - Weitere Videos auf der Disc: SHOWREEL.STR, 13× Figuren-STR – können
     dasselbe Rennen treffen, ungeprüft.
 
