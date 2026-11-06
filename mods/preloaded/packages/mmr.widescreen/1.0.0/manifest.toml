@@ -1,0 +1,38 @@
+format_version = 11
+id = "mmr.widescreen"
+version = "1.0.0"
+name = "Micro Maniacs Widescreen"
+author = "MicroManRecomp"
+description = "Wider picture for Micro Maniacs (PAL, SLES-01921). The game itself runs unchanged; it only shows more of the track at the sides. In Vs the picture decides what each player can see, so in netplay the host's choice applies to every player."
+license = "PolyForm-Noncommercial-1.0.0"
+resolver = "declarative"
+
+[[target]]
+game_id = "SLES-01921"
+
+[[feature]]
+id = "widescreen"
+name = "Widescreen"
+description = "Shows more of the track at the sides. Experimental."
+group = "Visual"
+channel = "experimental"
+default_enabled = false
+
+[[option]]
+feature = "widescreen"
+id = "aspect"
+label = "Aspect ratio"
+type = "choice"
+default = "16:9"
+
+[[option.choice]]
+value = "16:9"
+label = "16:9"
+
+[[option.choice]]
+value = "fit"
+label = "Fit to window"
+
+[[plugin]]
+feature = "widescreen"
+id = "mmr.widescreen"

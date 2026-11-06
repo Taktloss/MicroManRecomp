@@ -43,6 +43,10 @@ overlay_cache = true
 renderer = "opengl"
 aspect_ratio = "4:3"
 
+# Only read while the mmr.widescreen mod selects a wider aspect; 4:3 is stock.
+[widescreen]
+gte_game_mode = true
+
 [controller]
 default_mode = "digital"
 # Pads on the multitap stay digital: with DualShock-on-tap the game's second

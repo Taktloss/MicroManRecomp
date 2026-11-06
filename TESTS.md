@@ -72,9 +72,17 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
 - [ ] Supersampling 1x / 2x / 4x: Darstellung korrekt, keine Artefakte
 - [ ] geometry_correction an/aus: kein Polygonwackeln mehr, nichts kaputt
 - [ ] perspective_texturing an/aus: Bodentexturen nicht mehr verzerrt
+      (2026-11-06: wirkt leicht auf großen Bodenflächen, keine Artefakte)
+- [ ] Dithering aus (Mod Image Filtering): Rastermuster weg
+      (2026-11-06: wirkt, Vergleich vom Savestate)
 - [ ] 4:3-Ausgabe bei ausgeschalteten Verbesserungen identisch zum Original
 - [ ] Widescreen: keine fehlenden Objekte am Bildrand (Culling)
+      (2026-11-06 Mod mmr.widescreen: Strecke weitgehend vollständig,
+      einzelne fehlende Polygone links oben)
 - [ ] Widescreen im Vs-Modus: verhält sich wie in NOTES.md entschieden
+      (2026-11-06: Ausscheiden an der 4:3-Grenze wie Original; Netplay:
+      Host-Wahl gilt für alle, beide 16:9 ganzes Rennen desync 0,
+      ungleiche Wahl → Sitzung startet nicht)
 - [ ] Optionen über den Launcher änderbar und gespeichert
 
 ## F – Performance

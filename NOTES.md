@@ -9,7 +9,7 @@
 | 3     | Lauffähigkeit               | erledigt     | 2026-11-05 |
 | 4     | Netplay 2 Spieler           | in Arbeit    | 2026-11-06 |
 | 5     | Multitap / mehr Spieler     | in Arbeit    | 2026-11-06 |
-| 6     | Grafikverbesserungen        | offen        |       |
+| 6     | Grafikverbesserungen        | in Arbeit    | 2026-11-06 |
 | 7     | Später / optional           | offen        |       |
 
 Status-Werte: offen · in Arbeit · blockiert · erledigt
@@ -19,7 +19,9 @@ Status-Werte: offen · in Arbeit · blockiert · erledigt
 Phase 4 lokal fertig (2 Spieler), offen: Lobby/echtes Online (Nutzer).
 Phase 5 lokal fertig: Netplay mit 3–5 Spielern ohne Desync, auf 5 Spieler
 begrenzt (zwei Multitaps → Intro-Hänger im Framework-CD-Datenpfad), Tap-Pads
-digital. Nächster Schritt nach OK: Phase 6 (Grafik).
+digital. Phase 6 lokal fertig: Grafikoptionen über eingebaute Mods,
+Widescreen-Mod mmr.widescreen (Host-Wahl gilt im Netplay für alle).
+Offen: FSR 1 (Framework), fehlende Polygone am linken Rand.
 
 ## Entscheidungen
 <!-- Format: Datum – Entscheidung – Begründung -->
@@ -380,6 +382,46 @@ digital. Nächster Schritt nach OK: Phase 6 (Grafik).
   steht dort true, ist Pad 1 am Tap wieder tot. Netplay übernimmt den
   Host-Wert (match_caps.multitap_analog).
 
+### Phase 6 – Grafik (2026-11-06)
+- Vorhandene Optionen (Framework, eingebaute Mods, alle "host_only" = pro
+  Spieler, nicht im Netplay-Abgleich): Internal Resolution (Native…8K,
+  Mod-Standard 4x), Image Filtering (Glättung, Texturfilter Nearest/Bilinear/
+  xBR, FMV-Filter, Dithering Aus/Native/Fein), CRT-Filter, Post Processing
+  (FXAA, Bloom, .pfx-Shader), PGXP (perspektivische Texturen).
+- Vergleich vom selben Rennen-Savestate (Mice N Easy, OpenGL): Dithering aus
+  wirkt (238k Pixel leicht verändert, Muster weg), perspective_texturing
+  ändert nur große Bodenflächen leicht, Bilinear/xBR wirken. Keine Artefakte.
+- Standardwerte: game.toml bleibt originalgetreu (4:3, keine Filter, kein
+  PGXP); Verbesserungen wählt der Spieler über die Mods. geometry_correction
+  bleibt aus/verborgen (Framework: bekannt kaputt, Risse).
+- FSR 1: im Framework nicht vorhanden (nur Internal Resolution + Filter).
+  Wäre eine generische Framework-Erweiterung → nur mit Zustimmung.
+- Widescreen: game.toml `[video] aspect_ratio` allein wirkt nicht mehr
+  (Widescreen gehört seit S1 dem Mod-Katalog). Neues Paket mmr.widescreen
+  (mods/preloaded/packages, Plugin mods/plugins/mmr_widescreen.c): setzt bei
+  Aktivierung 16:9 oder "An Fenster anpassen"; Framework rendert native-wide.
+  game.toml `[widescreen] gte_game_mode = true` nötig, sonst wird das Rennen
+  als 2D-Szene erkannt und 4:3 mit Rändern gezeigt (game_mode 0).
+- Keine Cull-Sites gepatcht: Das EXE hat keine Bildbreiten-Vergleiche
+  (Anzeige 512 breit; kein slti/sltiu 0x200), die Strecke wird an den
+  Rändern trotzdem weitgehend gezeichnet. Einzelne fehlende Polygone am
+  linken Rand oben gesehen (offen). Ergebnis: Spiellogik rechnet identisch
+  zu 4:3 (nur Host-Zeichenversatz).
+- Vs-Ausscheiden: Zurückfallender Spieler schied auf Mice N Easy am unteren
+  Rand innerhalb des 4:3-Bereichs aus – Ausscheidegrenze bleibt die des
+  Originals (Logik unverändert). Im breiten Bild sieht man seitlich mehr
+  Strecke → betrifft den Bildausschnitt im Vs → Netplay-Grundsatz: Plugin
+  ohne netplay-Klasse, Host-Plan gilt für alle.
+- Netplay-Tests (2 Peers lokal, zweiter Peer aus build-release/peerB mit
+  eigener mods/state.toml):
+  - "local_view": mit content_negotiation = true trotzdem im Plan-Abgleich →
+    content_mismatch (Framework zählt local_view-Features im Direkt-Modus mit).
+  - "host_only" (Test): Host 16:9, Gast 4:3, ganzes Vs-Rennen desync 0 –
+    technisch möglich, verletzt aber den Grundsatz → verworfen.
+  - Endgültig (ohne Klasse): beide 16:9, ganzes Vs-Rennen bis Ergebnis,
+    desync 0; Host 16:9 + Gast 4:3 → Sitzung startet nicht (content_mismatch).
+- HUD bleibt an den 4:3-Positionen (nicht an die breiten Ecken verschoben).
+
 ### Disc
 - Redump-Dump, 2 Tracks: Track 1 MODE2/2352 (Daten), Track 2 AUDIO.
   → für Netplay: require_cue = true, required_tracks = 2.
@@ -482,7 +524,14 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
   gegen DuckStation prüfen.
 - ~~Ton im Intro nicht von mir prüfbar~~ → erledigt: Nutzer hat Ton bestätigt (2026-11-05).
 - PLAN.md nennt einmal "SSLES-01921" – vermutlich Tippfehler für SLES-01921.
-- Scheiden Spieler im Vs-Modus am Bildrand aus (relevant für Widescreen)?
+- ~~Scheiden Spieler im Vs-Modus am Bildrand aus?~~ Ja, an der
+  Original-4:3-Grenze (auch mit Widescreen, Logik unverändert). Nur auf
+  Mice N Easy geprüft (Ausscheiden unten); seitliches Ausscheiden auf
+  anderen Strecken ungeprüft.
+- Widescreen: einzelne fehlende Polygone am linken Rand – Ursache (Culling
+  in Welt- oder Bildkoordinaten?) noch nicht untersucht.
+- Menüs/Figurenauswahl mit Widescreen nicht systematisch angesehen
+  (Ladebild 3D breit, sah ok aus).
 
 ## Bekannte Bugs
 | Nr. | Beschreibung | Wo/wann | Status |
@@ -491,6 +540,8 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
 ## Sitzungsprotokoll
 <!-- Kurz pro Sitzung, neueste oben. Ältere Einträge gelegentlich
      zusammenfassen, damit die Datei übersichtlich bleibt. -->
+- 2026-11-06 – Phase 6: Grafikoptionen geprüft, Widescreen-Mod mmr.widescreen
+  gebaut, Vs-Netplay mit Widescreen desync 0. Wartet auf OK.
 - 2026-11-05 – Phase 2 erledigt: Scaffold (--players 8, Netplay, OpenBIOS),
   in Projektordner verschoben, Generate (1523 Funktionen) + rebuild ok,
   Boot bis Hauptmenü per Screenshots belegt. Noch kein Commit.

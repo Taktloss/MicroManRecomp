@@ -61,9 +61,11 @@ psxrecomp_add_game_runtime(psx-runtime
 )
 
 # Title-owned trusted plugins (statically linked; activated only through the
-# packages in mods/preloaded). Game logic cheats: mmr.cheats.
+# packages in mods/preloaded). Game logic cheats: mmr.cheats; own-view
+# widescreen: mmr.widescreen.
 target_sources(psx-runtime PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/mods/plugins/mmr_cheats.c")
+    "${CMAKE_CURRENT_SOURCE_DIR}/mods/plugins/mmr_cheats.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/mods/plugins/mmr_widescreen.c")
 
 # Stage runtime configs next to the exe for direct build/ launches. Only copy
 # files that exist — never fail POST_BUILD when game_options.toml is absent.
