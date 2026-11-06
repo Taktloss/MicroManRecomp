@@ -191,32 +191,39 @@ mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
     nur 3×. CD liest weiter dieselben Sektoren im selben Tempo wie offline.
   - Pad-Abfrage normal (beide Ports digitales Pad). Kein CD-Speed-Mod
     offline aktiv. Start im ersten Video überspringt nicht.
-  - Ursachenkette (2026-11-06, gemessen):
-    1. cdrom_timing-Ring (emulierte Zyklen): offline und netplay identisch
-       bis Sektor 577 (Zyklus 259 151 881, ~7,6 s). Ab dem nächsten Read
-       (LBA 184904) ist netplay konstant +11 376 Zyklen später.
-    2. Grund dafür: andere Pad-Bestückung. Offline: Port 1 = 8BitDo als
-       konfigurierbares Pad (antwortet 0x43), Port 2 leer (0x42→0xFF).
-       Netplay: beide Ports digitales Pad (0x41 5A). Pad-Abfrage kostet
-       anders viel Zeit → Versatz. Zwischen den Peers deterministisch.
-    3. Mit diesem Timing: beim Start von INTRO.STR (seq 1329, LBA 185655)
-       kommt ein INT1 "pended", direkt danach cdrom 'overwrite' (Daten-FIFO
-       noch 0x300 Bytes gelesen, nächster Sektor kommt). Erstes Videobild
-       wird dadurch kaputt (Kopf 3a14… statt 3d18…), MDEC dekodiert 319 von
-       320 Makroblöcken (Intro 320×256) → letzter DMA1-Slice wird nie fertig
-       → Spiel wartet ewig. CODELOGO.STR nutzt kein MDEC (läuft).
-    4. Echte Hardware verliert hier nichts → vermutlich Ungenauigkeit im
-       CD-Modell (pended INT1 / FIFO / async CD-DMA) des Frameworks, durch
-       das Netplay-Pad-Timing ausgelöst. Noch NICHT bewiesen.
-  - Offline-Nachstellung (2 digitale Pads) noch nicht gelungen: set_input
-    port 2 verbindet im Release-Build kein Pad (SIO Port 2 bleibt 0xFF);
-    input.ini [controller] enabled=false änderte Port 1 nicht erkennbar.
-  - Weitere Videos auf der Disc: SHOWREEL.STR, 13× Figuren-STR (V4, WALDO …)
-    – vermutlich gleich betroffen; Intro überspringen allein reicht nicht.
-  - Nächste Schritte: (a) offline mit 2 digitalen Pads reproduzieren
-    (Build mit PSX_DEBUG_TOOLS oder echte Spielereinstellung), (b) gegen
-    Beetle-Oracle/DuckStation prüfen, was dort beim pended INT1 + halb
-    gelesenem FIFO passiert, (c) Fix im Framework nur mit Zustimmung.
+  - Ursachenkette (2026-11-06, gemessen; Pad-Hypothese verworfen):
+    1. Pads sind NICHT die Ursache: kompletter SIO-Mitschnitt (9108 Bytes)
+       offline vs. Netplay identisch. Frühere Aussage "Pad-Bestückung" war
+       falsch (beruhte auf nur 64 Trace-Einträgen).
+    2. Emulierte Zeit identisch bis Frame 376; ab Frame 383 setzt das Spiel
+       seine CD-Befehle im Netplay +11 376 Takte später ab. DMA-Abfolge in
+       Frame 360–384 identisch; Software-Renderer offline ändert nichts;
+       Offline-Selfcheck (PSX_RB_SELFCHECK=1) und PSX_SAME_THREAD_RESTORE=1
+       im Netplay ändern nichts.
+    3. Zweite, größere Abweichung: das Logo-Video (CODELOGO.STR) wird im
+       Netplay 6 Frames früher beendet (Setloc für INTRO in Frame 634 nach
+       LBA 185655, offline Frame 640 ~18 Sektoren später), obwohl der
+       Sektorstrom nur 11k Takte versetzt ist. Was das Spiel dort zählt,
+       ist noch offen.
+    4. Kandidaten für die Zeitverschiebung: netplay-only Pfade im Framework
+       (gpu.c: vblank_callback wird an die nächste BB-Kante verschoben statt
+       sofort; interrupts.c: Halte-Regeln für MotK-PCs 0x8006CD54/0x800768C8,
+       Present-Flush an BB-Kanten). Ohne Framework-Instrumentierung nicht
+       weiter eingrenzbar.
+    5. Folge der Verschiebung: zwischen Setmode(0xC0) und ReadS trifft noch
+       ein Logo-Sektor ein; sein INT1 wird gepuffert und nach dem INT3-Ack
+       zugestellt, ReadS wird "queued". Das Spiel verarbeitet den veralteten
+       INT1, lässt BFRD (Request-Reg 0x80) gesetzt. Beim ersten INTRO-Sektor
+       zieht ein bereits laufender CD-DMA sofort 1312 Bytes, dann setzt der
+       INT1-Handler BFRD 0→0x80 (Position zurück auf 0) und der DMA liest den
+       Sektoranfang erneut → Videobild kaputt → MDEC 319/320 Blöcke → Hänger.
+    6. Abgleich DuckStation (src/core/cdrom.cpp, master): gleiches Verhalten
+       in dieser Lage (async INT1 wird nach Ack zugestellt, Befehl wartet;
+       BFRD löschen setzt Sektorposition auf 0; ReadS verwirft nur einen
+       NOCH NICHT zugestellten INT1). Das CD-Modell ist hier also nicht
+       offensichtlich falsch; DuckStation trifft das Zeitfenster nur nicht.
+  - Weitere Videos auf der Disc: SHOWREEL.STR, 13× Figuren-STR – können
+    dasselbe Rennen treffen, ungeprüft.
 
 ### Disc
 - Redump-Dump, 2 Tracks: Track 1 MODE2/2352 (Daten), Track 2 AUDIO.
