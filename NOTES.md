@@ -222,8 +222,30 @@ mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
        DualShock (Analog aus)? Wenn ja, stimmt irgendwo das Timing (SIO oder
        CD) nicht mit echter Hardware überein → Oracle-Vergleich nötig
        (PCSX-Redux nicht installiert; DuckStation als Flatpak vorhanden).
-  - Messpatch (nicht committet): Scratchpad npx_experiment.patch; Framework
-    danach per git checkout zurückgesetzt.
+  - Oracle-Abgleich PCSX-Redux (2026-11-06; ~/.local/opt/pcsx-redux, dev
+    build de62106d, OpenBIOS, Interpreter, 2× DualShock digital, Lua-Logger
+    für CD-Register): Intro läuft. Gleicher Befehlsablauf wie bei uns, aber:
+    1. Seek-Zeit: ReadS von LBA ~185655 (Logo-Ende) nach 527 (INTRO)
+       dauert in Redux ~19,4 Mio Takte (~0,57 s), bei uns ~0,45 Mio
+       (13 ms). Das Framework hat für ReadN/ReadS keinen distanzabhängigen
+       Seek (initial_read_delay_cycles = feste 1 Sektorperiode bei 1x).
+       DuckStation (GetTicksForSeek) rechnet für diesen Sled-Seek ~0,67 s.
+    2. Befehlsantwort: Redux/DuckStation erzeugen INT3 erst nach Laufwerks-
+       Latenz (DuckStation 25 000 Takte mit Disc; psx-spx: GetStat Ø 0xC4E1
+       = 50 401, min 0x4A73 = 19 059). Ein in der Zeit eintreffender Sektor
+       (INT1) kommt zuerst, der Befehl wartet. Framework: Befehl wird sofort
+       ausgeführt, irq_flag sofort gesetzt, nur INTC-Zustellung +5000
+       (CDROM_IRQ_PRESENT_DELAY). Dadurch kippt die Reihenfolge.
+  - Versuchspatches (nicht committet, Framework zurückgesetzt):
+    Scratchpad cd_timing_experiment.patch
+    * PSX_NPX_ACK (nur INTC-Verzögerung länger): hängt weiter.
+    * PSX_NPX_CMDLAT=20000 (Befehl verzögert ausgeführt): offline ok,
+      Netplay hängt weiter (Rennen nur verschoben).
+    * PSX_NPX_SEEK=1 (DuckStation-Seek-Modell für ReadN/ReadS nach
+      Setloc): Netplay UND offline Intro läuft, kein Desync, Rennen tritt
+      nicht mehr auf (0 overwrites).
+  - Fix-Vorschlag (Framework, generisch, wartet auf Zustimmung): (1)
+    distanzabhängige Seek-Zeit, (2) Befehlsantwort-Latenz wie DuckStation.
   - Weitere Videos auf der Disc: SHOWREEL.STR, 13× Figuren-STR – können
     dasselbe Rennen treffen, ungeprüft.
 
