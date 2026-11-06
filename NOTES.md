@@ -262,6 +262,19 @@ mmr.cheats eingebaut und geprüft. Phase 4 (Netplay 2 Spieler) läuft.
     (OpenGL/Software), Verbindungsabbruch: alles ohne Desync bzw. sauber.
     Offen: Lobby über den Launcher (manuell), echtes Online, Erzwingen
     logikrelevanter Einstellungen, Cheats im Netplay (TESTS G).
+  - game.toml [netplay] content_negotiation = true (2026-11-06): nötig, damit
+    Cheats im Netplay gelten (sonst Vanilla-Sitzung). Direktverbindung:
+    gleicher Plan → Cheats auf beiden Peers aktiv, desync 0; ungleicher Plan
+    → "LAN content differs between peers", Start verweigert, nach 20 s
+    zurück zur Lobby. Lobby veröffentlicht den Host-Plan (ungeprüft).
+  - LÜCKE Framework (wartet auf Zustimmung): bios_hle/fast_boot (Boot-Plan)
+    sind in PsxLobbyMatchCaps vorgesehen, werden aber vom Host nie gesetzt
+    (ae_netplay_caps_from_settings) und vom Gast nie übernommen; bei LAN/
+    Direkt nicht im Content-Gate. Test: Gast PSX_BIOS_HLE=0 → Host
+    bios_boot=HLE, Gast LLE, 24/25 Digests verschieden, netplay_status
+    desync 0, Sitzung läuft weiter. Ohne content_negotiation loggt der Host
+    "rb FIRST CORE DIVERGE sim=7", mit gar nichts. Delay-Modus meldet
+    Core-Divergenz nicht als desync.
   - Hinweis Debug-Befehl press/set_input: Tasten active-low (0xFFFF = nichts
     gedrückt, z. B. Kreuz = 0xBFFF).
   - Weitere Videos auf der Disc: SHOWREEL.STR, 13× Figuren-STR – können

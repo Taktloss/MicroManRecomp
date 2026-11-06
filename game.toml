@@ -49,6 +49,7 @@ default_mode = "digital"
 # Online mount gate: digests + track count + optional TOC fingerprint
 # (see docs/NETPLAY.md).
 [netplay]
+content_negotiation = true
 require_cue = true
 required_tracks = 2
 required_disc_fp = "58b1ce194e508390800eabad0977879fd538673110938e19732c832c061fa3a4"

@@ -41,6 +41,9 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
       the other player left or stopped responding." und beendet sich ohne
       Absturz/Coredump)
 - [ ] Logikrelevante Einstellungen werden für alle erzwungen
+      (2026-11-06 teilweise: Mod-Plan ok – bei abweichendem Plan startet die
+      Sitzung nicht (content_mismatch). LÜCKE im Framework: bios_hle/fast_boot
+      werden weder übernommen noch verglichen → stille Divergenz)
 - [ ] Unterschiedliche visuelle Einstellungen bei den Spielern verursachen
       keinen Desync
       (2026-11-06 teilweise: Host OpenGL, Gast Software-Renderer, ganzes
@@ -52,6 +55,8 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
 - [ ] Secret Options an: alle 12 Einträge unter Optionen > Geheimoptionen
 - [ ] Beide aus: Spiel verhält sich wie das Original (Leben sinken)
 - [ ] (ab Phase 4) Netplay: Cheat-Auswahl des Hosts gilt für alle, kein Desync
+      (2026-11-06 Direktverbindung ok: gleicher Plan → Leben 5 und Maske ffff
+      auf beiden Peers, desync 0; Host-Plan über Lobby noch ungeprüft)
 
 ## E – Grafik (ab Phase 6)
 - [ ] Supersampling 1x / 2x / 4x: Darstellung korrekt, keine Artefakte
