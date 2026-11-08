@@ -70,8 +70,10 @@ The release zip contains **no game code**: only the runtime setup host, the
 framework tools and OpenBIOS. On first start it asks for your own disc
 (Micro Maniacs PAL, SLES-01921, CUE/BIN with 2 tracks), generates the game C
 locally and builds the playable binary under `build-release/`. Later starts
-go straight to the game. Linux needs a C toolchain (gcc or clang, cmake,
-ninja); otherwise the wizard offers to download a portable one.
+go straight to the game. Linux needs CMake, Ninja, Python 3 and gcc/g++ or
+clang/clang++ on PATH (Fedora/Nobara: `sudo dnf install cmake ninja-build
+python3 gcc-c++`); the first build takes a few minutes. Only a Linux x64
+kit is published so far. Packaging: `scripts/package_setup_kit.sh`.
 
 Enhancements (all optional, per player unless noted): internal resolution,
 texture filtering, FSR 1 upscaling, dithering off, PGXP, CRT/post effects,

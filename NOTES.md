@@ -568,6 +568,11 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
 ## Sitzungsprotokoll
 <!-- Kurz pro Sitzung, neueste oben. Ältere Einträge gelegentlich
      zusammenfassen, damit die Datei übersichtlich bleibt. -->
+- 2026-11-08 – Veröffentlicht: Repo Taktloss/MicroManRecomp (public), Fork
+  Taktloss/psxrecomp (Branch micro-maniacs). Kit-Packer im Framework
+  repariert (Projektdateien, rabbitizer-Header, generated/-Prüfung);
+  Kit scripts/package_setup_kit.sh: frisch entpackt → generate + rebuild
+  mit eigener Disc → bootet ins Intro, Setup-EXE leitet weiter.
 - 2026-11-06 – Phase 6 Nachtrag: FSR 1 ins Framework (generisch), neue
   Cull-Art sxy_read_sites + 60 Stellen in game.toml → Rand-Polygone da.
   OpenBIOS-Stempel und docs/TCP_COMMANDS.md neu erzeugt. Wartet auf OK.
