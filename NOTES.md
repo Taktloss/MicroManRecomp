@@ -571,6 +571,21 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
 ## Sitzungsprotokoll
 <!-- Kurz pro Sitzung, neueste oben. Ältere Einträge gelegentlich
      zusammenfassen, damit die Datei übersichtlich bleibt. -->
+- 2026-11-08 – Phase 7 Punkt 3 (Nutzer-OK für Framework-Änderung): Linux-Kit
+  braucht nur noch Python 3. Ohne System-Werkzeuge bietet die Setup-Seite den
+  Download von cmake-clang-v1 an (nur nach Bestätigung bzw. `ensure-toolchain`
+  oder RETCOMM_TOOLCHAIN_DOWNLOAD=1; Rebuild lädt nie ungefragt). System-
+  Werkzeuge haben weiter Vorrang. Framework psxrecomp 46ae0977, nebenbei
+  behoben: Host ignorierte RETCOMM_TOOLCHAIN_CACHE als Ziel; Selfcheck
+  toolchain_ready war unter Linux immer false; Sysroot-Build griff auf
+  System-OpenSSL (openssl/evp.h fehlte) → jetzt portabler SHA-256.
+  Geprüft ohne cmake/ninja/gcc im PATH: CLI ensure-toolchain + generate +
+  rebuild → Spiel bootet (50 fps, kein libcrypto), Weiterleitung OK;
+  Assistent-Download (C-Pfad per gdb aufgerufen) installiert in isolierten
+  Cache, toolchain_ready true; vier Selfcheck-Fälle korrekt. Test
+  test_setup_bios_assets an neue Regel angepasst (24+2 Tests OK).
+  Offen: Klick-Test des Assistenten durch Nutzer; Kits noch nicht neu
+  veröffentlicht (v0.1.0 hat den alten Stand).
 - 2026-11-08 – Workflow .github/workflows/setup-kit.yml baut Linux- und
   Windows-Kit (Tag vX.Y.Z → Release, sonst Artefakt). Beide an v0.1.0;
   CI-Linux-Kit mit eigener Disc geprüft (bootet, Weiterleitung), Windows-Kit

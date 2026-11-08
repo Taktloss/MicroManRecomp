@@ -70,9 +70,13 @@ The release zip contains **no game code**: only the runtime setup host, the
 framework tools and OpenBIOS. On first start it asks for your own disc
 (Micro Maniacs PAL, SLES-01921, CUE/BIN with 2 tracks), generates the game C
 locally and builds the playable binary under `build-release/`. Later starts
-go straight to the game. Linux needs CMake, Ninja, Python 3 and gcc/g++ or
-clang/clang++ on PATH (Fedora/Nobara: `sudo dnf install cmake ninja-build
-python3 gcc-c++`); the first build takes a few minutes.
+go straight to the game. Linux uses CMake, Ninja, Python 3 and gcc/g++ or
+clang/clang++ from PATH when all are installed (Fedora/Nobara: `sudo dnf
+install cmake ninja-build python3 gcc-c++`). Without them only Python 3 is
+needed: the setup page offers to download the portable cmake-clang-v1 pack
+(nothing is downloaded unless you confirm it there, or run
+`python3 psxrecomp/psxrecomp_cli.py ensure-toolchain`). The first build takes
+a few minutes.
 Windows x64 (10 version 1803 or later) downloads its build toolchain
 (cmake-clang-v1) on first start; under Wine/Proton use the Linux kit instead.
 Kits are built by the *Setup kit* workflow (`.github/workflows/setup-kit.yml`):
