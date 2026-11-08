@@ -1,0 +1,117 @@
+# Self-compile kit (setup host, no game code) for Windows.
+# The kit carries no disc-derived file: the player's first start generates
+# the game C from their own disc and builds it (docs: README "Release").
+# Run manually; with a tag, the zip is attached to that GitHub release.
+name: Setup kit
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach the zip to (empty: artifact only)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: windows-x64
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Record framework revisions
+        shell: bash
+        run: bash psxrecomp/tools/ci/record_pins.sh
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-vulkan-headers
+            mingw-w64-x86_64-shaderc
+            mingw-w64-x86_64-python
+            rsync
+            curl
+            zip
+            unzip
+
+      - name: Prefetch SDL3 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash psxrecomp/tools/ci/prefetch_sdl3.sh --out-dir .cache/sdl3-src
+          echo "PSX_SDL3_SOURCE_DIR=$(cygpath -m .cache/sdl3-src)" >>"$GITHUB_ENV"
+
+      # llvm-mingw from cmake-clang-v1 for statically linked emitters; it is
+      # for this build machine only and is not put into the kit.
+      - name: Fetch portable toolchain (emitters)
+        uses: ./psxrecomp/.github/actions/fetch-toolchain
+        with:
+          artifact: windows-x64
+
+      - name: Build emitters
+        uses: ./psxrecomp/.github/actions/build-emitters
+
+      - name: Configure & build setup host
+        run: |
+          set -euo pipefail
+          unset PSXRECOMP_TOOLCHAIN_DIR TOOLCHAIN_DIR RETCOMM_TOOLCHAIN_DIR || true
+          unset CMAKE_PREFIX_PATH SDL3_DIR ZLIB_ROOT || true
+          export VULKAN_SDK=/mingw64
+          cmake -S . -B build-ci -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPSX_SETUP_WIZARD=ON \
+            -DPSXRECOMP_FORCE_SETUP_HOST=ON \
+            -DPSX_SDL_BACKEND=SDL3 \
+            -DGLSLC_EXE="$(command -v glslc)" \
+            -DFETCHCONTENT_SOURCE_DIR_SDL3="${PSX_SDL3_SOURCE_DIR}" \
+            2>&1 | tee build-ci-configure.log
+          grep -q "setup host (no game C" build-ci-configure.log
+          cmake --build build-ci
+
+      - name: Package kit
+        run: |
+          set -euo pipefail
+          SKIP_BUILD=1 bash scripts/package_setup_kit.sh windows-x64
+          ls -la dist/*.zip
+
+      - name: Audit kit (no game code, no disc data)
+        shell: bash
+        run: |
+          set -euo pipefail
+          Z="$(ls dist/*.zip)"
+          unzip -Z1 "${Z}" > kit-files.txt
+          if grep -E -i '(^|/)generated/[^/]*SLES|^generated/|\.(cue|iso|chd)$|Track [0-9]+\)\.bin$|mods/state\.toml$|overlay_captures\.json$|^saves/' kit-files.txt; then
+            echo "::error::kit contains disc-derived or per-user files"
+            exit 1
+          fi
+          grep -q '^Micro_Maniacs__Recompiled.exe$' kit-files.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MicroManiacsRecomp-windows-x64
+          path: dist/*.zip
+
+      - name: Attach to release
+        if: inputs.tag != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ inputs.tag }}" dist/*.zip --clobber --repo "${{ github.repository }}"

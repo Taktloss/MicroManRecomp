@@ -4,7 +4,7 @@
 # OpenBIOS; the player's first start generates the game C from their own disc
 # and builds it locally. Nothing disc-derived is packaged.
 # Usage (repo root, fresh clone with submodules, no generated/):
-#   scripts/package_setup_kit.sh [linux-x64]
+#   scripts/package_setup_kit.sh [linux-x64|windows-x64]
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "${ROOT}"
@@ -13,10 +13,14 @@ if [[ -d generated ]]; then
   echo "error: generated/ exists; package the kit from a clean checkout" >&2
   exit 1
 fi
-psxrecomp/tools/ci/build_emitters.sh --build-dir build-recompiler
-cmake -S . -B build-ci -G Ninja -DCMAKE_BUILD_TYPE=Release \
-  -DPSX_SETUP_WIZARD=ON -DPSXRECOMP_FORCE_SETUP_HOST=ON -DPSX_SDL_BACKEND=SDL3
-cmake --build build-ci
+# SKIP_BUILD=1: package an existing build-recompiler/ + build-ci/ (CI builds
+# them in its own steps, e.g. llvm-mingw emitters on Windows).
+if [[ "${SKIP_BUILD:-0}" != 1 ]]; then
+  psxrecomp/tools/ci/build_emitters.sh --build-dir build-recompiler
+  cmake -S . -B build-ci -G Ninja -DCMAKE_BUILD_TYPE=Release \
+    -DPSX_SETUP_WIZARD=ON -DPSXRECOMP_FORCE_SETUP_HOST=ON -DPSX_SDL_BACKEND=SDL3
+  cmake --build build-ci
+fi
 args=()
 for f in CMakeLists.txt game.toml game_options.toml VERSION codegen_setup.c \
          codegen_setup.h psx_symbols.h symbols.toml catalog_identity.json \
