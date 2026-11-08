@@ -42,6 +42,10 @@ overlay_cache = true
 [video]
 renderer = "opengl"
 aspect_ratio = "4:3"
+# Experimental 60+ fps: the launcher's "Smooth motion" (with Render thread)
+# draws in-between frames from the recorded draw lists, presentation only;
+# game timing is untouched (25 Hz flips in races, checked 2026-11-08).
+offer_frame_generation = true
 
 # Only read while the mmr.widescreen mod selects a wider aspect; 4:3 is stock.
 [widescreen]

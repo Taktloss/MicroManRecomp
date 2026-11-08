@@ -571,6 +571,19 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
 ## Sitzungsprotokoll
 <!-- Kurz pro Sitzung, neueste oben. Ältere Einträge gelegentlich
      zusammenfassen, damit die Datei übersichtlich bleibt. -->
+- 2026-11-08 – Phase 7 Punkt 1 (60 fps, experimentell): Framework-
+  Frame-Generation (redraw, docs/FRAME_GENERATION.md) läuft ohne Anpassung.
+  Rennen flippt alle 2 VBlanks (25 Hz); auf 175 Hz 6 Zwischenbilder/Flip,
+  gen ~0,26 ms, Kamera-Fit 170–290 Inlier von 230–420 Paaren, 48 s Fahrt mit
+  Lenken: 0 Breaker, Spieltempo 25 Flips/s unverändert; Szenenwechsel →
+  "few inliers"/"no projections" → echtes Bild (korrektes Fallback).
+  Launcher-Zeile "Smooth motion" war für PSX immer versteckt → neuer
+  generischer Schlüssel [video] offer_frame_generation (Nutzer-OK,
+  psxrecomp lokal); game.toml setzt ihn. Spielerweg über settings.toml
+  (render_thread + frame_generation) geprüft. Slot-9-Savestate nach Rebuild
+  ungültig → neu angelegt (Herausforderung, Mice N Easy, Countdown).
+  Offen: Netplay-Test mit ungleicher Einstellung, Widescreen-Kombination,
+  Sicht-Test durch Nutzer.
 - 2026-11-08 – Phase 7 Punkt 3 (Nutzer-OK für Framework-Änderung): Linux-Kit
   braucht nur noch Python 3. Ohne System-Werkzeuge bietet die Setup-Seite den
   Download von cmake-clang-v1 an (nur nach Bestätigung bzw. `ensure-toolchain`

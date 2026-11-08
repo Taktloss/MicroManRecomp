@@ -64,6 +64,15 @@ Optional box art under `launcher_assets/img/` may come from
 [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails)
 (`Named_Boxarts`); see `BOXART_SOURCE.txt` when present.
 
+## Smooth motion (experimental)
+
+Settings → Render thread + Smooth motion draws in-between frames up to your
+display's refresh rate (races run at 25 game frames per second on PAL) from
+the game's own draw lists. Presentation only: game speed and logic are
+untouched, so each netplay player may choose it freely. Adds up to one game
+frame of latency; turns itself off for a few seconds when the PC falls
+behind. OpenGL only.
+
 ## Release (self-compile kit)
 
 The release zip contains **no game code**: only the runtime setup host, the

@@ -89,6 +89,12 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
       erneut ~4 min Vs desync 0)
 - [ ] Optionen über den Launcher änderbar und gespeichert
 
+- [ ] Smooth motion (experimentell, Render thread + Smooth motion im
+      Launcher): Zwischenbilder bis zur Bildschirmrate, Spieltempo unverändert
+      (Rennen 25 Flips/s), keine Breaker-Auslösungen (`frame_gen` trips 0)
+- [ ] Smooth motion + Widescreen 16:9: keine Artefakte am Rand
+- [ ] Netplay: nur ein Spieler mit Smooth motion → kein Desync
+
 ## F – Performance
 - [ ] Volle Bildrate im Rennen (50 Hz PAL bzw. 60 Hz NTSC)
 - [ ] Keine Ruckler beim Laden neuer Bereiche (Overlays)
