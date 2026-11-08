@@ -133,7 +133,10 @@ committet. Wartet auf OK.
   127.0.0.1). Hilfsskript im Scratchpad (dbg.py): press/seq/shot/ram.
   `press` nimmt das PS1-Tastenwort aktiv-low (Start 0xFFF7, X 0xBFFF).
 - `rebuild --cmake-extra=-DCMAKE_BUILD_TYPE=RelWithDebInfo` → build-dev/, aber
-  PSX_DEBUG_TOOLS bleibt OFF (CLI setzt es); für Tracing ggf. später klären.
+  PSX_DEBUG_TOOLS bleibt OFF (CLI setzt es). build-dev am 2026-11-08 gelöscht;
+  build-release hat den Debug-Server (PSX_DEBUG_SERVER=1 --debug-port N).
+- Hilfsskripte lagen im Scratchpad (/tmp) und sind nach dem Neustart weg;
+  Debug-Server: pro Befehl eine TCP-Verbindung, eine JSON-Zeile.
 - Start drückt das Intro weg → Sprachauswahl (X = vorgewählt Englisch) →
   Hauptmenü englisch. Ohne Eingabe landete das Spiel auf Deutsch.
 - Challenge: Charakterwahl, Streckenwahl (Mice N Easy, Training), Gegner-
@@ -568,6 +571,9 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
 ## Sitzungsprotokoll
 <!-- Kurz pro Sitzung, neueste oben. Ältere Einträge gelegentlich
      zusammenfassen, damit die Datei übersichtlich bleibt. -->
+- 2026-11-08 – Aufgeräumt: Testordner ~/Projects/mmr-release (Disc-Kopie,
+  erzeugter Code), build-dev, Netplay-Testpeer build-release/peerB,
+  __pycache__ gelöscht; Framework-Branch lokal in micro-maniacs umbenannt.
 - 2026-11-08 – Veröffentlicht: Repo Taktloss/MicroManRecomp (public), Fork
   Taktloss/psxrecomp (Branch micro-maniacs). Kit-Packer im Framework
   repariert (Projektdateien, rabbitizer-Header, generated/-Prüfung);
