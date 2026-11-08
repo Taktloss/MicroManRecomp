@@ -1,10 +1,14 @@
-# Self-compile kit (setup host, no game code) for Windows.
+# Self-compile kits (setup host, no game code) for Linux and Windows.
 # The kit carries no disc-derived file: the player's first start generates
 # the game C from their own disc and builds it (docs: README "Release").
-# Run manually; with a tag, the zip is attached to that GitHub release.
+# A pushed tag vX.Y.Z builds both kits and attaches them to that release
+# (created if missing). Manual runs attach to the given tag, or only keep the
+# zips as workflow artifacts.
 name: Setup kit
 
 on:
+  push:
+    tags: ['v*']
   workflow_dispatch:
     inputs:
       tag:
@@ -15,7 +19,82 @@ on:
 permissions:
   contents: write
 
+env:
+  RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+
 jobs:
+  linux:
+    name: linux-x64
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Record framework revisions
+        run: bash psxrecomp/tools/ci/record_pins.sh
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          # X11 + xtst: FetchContent builds SDL3 (no libsdl3-dev on 24.04).
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build pkg-config python3 rsync \
+            libgl1-mesa-dev libxtst-dev libx11-dev libxext-dev libxrandr-dev \
+            libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxkbcommon-dev \
+            libwayland-dev wayland-protocols libdecor-0-dev \
+            libasound2-dev libpulse-dev libudev-dev libvulkan-dev glslc \
+            zip unzip
+
+      - name: Prefetch SDL3 source
+        run: |
+          set -euo pipefail
+          bash psxrecomp/tools/ci/prefetch_sdl3.sh --out-dir .cache/sdl3-src
+          echo "PSX_SDL3_SOURCE_DIR=$PWD/.cache/sdl3-src" >>"$GITHUB_ENV"
+
+      - name: Build emitters
+        uses: ./psxrecomp/.github/actions/build-emitters
+
+      - name: Configure & build setup host
+        run: |
+          set -euo pipefail
+          export VULKAN_SDK=/usr
+          cmake -S . -B build-ci -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPSX_SETUP_WIZARD=ON \
+            -DPSXRECOMP_FORCE_SETUP_HOST=ON \
+            -DPSX_SDL_BACKEND=SDL3 \
+            -DGLSLC_EXE="$(command -v glslc)" \
+            -DFETCHCONTENT_SOURCE_DIR_SDL3="${PSX_SDL3_SOURCE_DIR}" \
+            2>&1 | tee build-ci-configure.log
+          grep -q "setup host (no game C" build-ci-configure.log
+          cmake --build build-ci
+
+      - name: Package kit
+        run: |
+          set -euo pipefail
+          SKIP_BUILD=1 bash scripts/package_setup_kit.sh linux-x64
+          ls -la dist/*.zip
+
+      - name: Audit kit (no game code, no disc data)
+        run: |
+          set -euo pipefail
+          Z="$(ls dist/*.zip)"
+          unzip -Z1 "${Z}" > kit-files.txt
+          if grep -E -i '^generated/|\.(cue|iso|chd)$|Track [0-9]+\)\.bin$|mods/state\.toml$|overlay_captures\.json$|^saves/' kit-files.txt; then
+            echo "::error::kit contains disc-derived or per-user files"
+            exit 1
+          fi
+          grep -q '^Micro_Maniacs__Recompiled$' kit-files.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MicroManiacsRecomp-linux-x64
+          path: dist/*.zip
+
   windows:
     name: windows-x64
     runs-on: windows-2022
@@ -97,7 +176,7 @@ jobs:
           set -euo pipefail
           Z="$(ls dist/*.zip)"
           unzip -Z1 "${Z}" > kit-files.txt
-          if grep -E -i '(^|/)generated/[^/]*SLES|^generated/|\.(cue|iso|chd)$|Track [0-9]+\)\.bin$|mods/state\.toml$|overlay_captures\.json$|^saves/' kit-files.txt; then
+          if grep -E -i '^generated/|\.(cue|iso|chd)$|Track [0-9]+\)\.bin$|mods/state\.toml$|overlay_captures\.json$|^saves/' kit-files.txt; then
             echo "::error::kit contains disc-derived or per-user files"
             exit 1
           fi
@@ -109,9 +188,29 @@ jobs:
           name: MicroManiacsRecomp-windows-x64
           path: dist/*.zip
 
-      - name: Attach to release
-        if: inputs.tag != ''
-        shell: bash
+
+  release:
+    name: Attach to release
+    needs: [linux, windows]
+    if: ${{ github.event_name == 'push' || inputs.tag != '' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download kits
+        uses: actions/download-artifact@v4
+        with:
+          path: kits
+          merge-multiple: true
+
+      - name: Create release if missing, upload kits
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ inputs.tag }}" dist/*.zip --clobber --repo "${{ github.repository }}"
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          ls -la kits
+          if ! gh release view "${RELEASE_TAG}" --repo "${REPO}" >/dev/null 2>&1; then
+            gh release create "${RELEASE_TAG}" --repo "${REPO}" \
+              --title "Micro Maniacs Recompiled ${RELEASE_TAG#v}" \
+              --notes "Selbstkompilier-Kit (Linux x64, Windows x64): kein Spielcode, keine Disc. Beim ersten Start die eigene Disc wählen; der Spielcode wird lokal erzeugt und gebaut. Siehe README."
+          fi
+          gh release upload "${RELEASE_TAG}" kits/*.zip --clobber --repo "${REPO}"
