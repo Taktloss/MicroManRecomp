@@ -1,20 +1,20 @@
 # Micro Maniacs  Recompiled
 
 <!-- retcomm-readme-metrics -->
-[![GitHub downloads (all assets, all releases)](https://img.shields.io/github/downloads/RetroPortingToolKit/MicroManRecomp/total)](https://github.com/RetroPortingToolKit/MicroManRecomp/releases)
-[![GitHub downloads (latest release)](https://img.shields.io/github/downloads/RetroPortingToolKit/MicroManRecomp/latest/total)](https://github.com/RetroPortingToolKit/MicroManRecomp/releases/latest)
-[![GitHub release](https://img.shields.io/github/v/release/RetroPortingToolKit/MicroManRecomp)](https://github.com/RetroPortingToolKit/MicroManRecomp/releases/latest)
+[![GitHub downloads (all assets, all releases)](https://img.shields.io/github/downloads/Taktloss/MicroManRecomp/total)](https://github.com/Taktloss/MicroManRecomp/releases)
+[![GitHub downloads (latest release)](https://img.shields.io/github/downloads/Taktloss/MicroManRecomp/latest/total)](https://github.com/Taktloss/MicroManRecomp/releases/latest)
+[![GitHub release](https://img.shields.io/github/v/release/Taktloss/MicroManRecomp)](https://github.com/Taktloss/MicroManRecomp/releases/latest)
 <!-- /retcomm-readme-metrics -->
 
 Static recompilation of **Micro Maniacs** built on
-[psxrecomp](https://github.com/mstan/psxrecomp) and
+[psxrecomp](https://github.com/mstan/psxrecomp) (fork with this title's framework changes: [Taktloss/psxrecomp](https://github.com/Taktloss/psxrecomp/tree/micro-maniacs)) and
 [recomp-ui](https://github.com/RetroPortingToolKit/recomp-ui).
 
 Native PC port of Micro Maniacs (PS1) with online multiplayer
 
 | | |
 |---|---|
-| Players | 8 |
+| Players | 1–5 (Multitap, Netplay) |
 | Region | Europe |
 | Publisher | Codemasters |
 | Year | 2000 |
@@ -26,7 +26,7 @@ Scaffolded with the New Project Layout. See
 ## Retro Launcher
 
 You can run this title **standalone** (download the release zip, point it at
-your disc, play), or manage installs, updates, and disc/BIOS wiring with
+your disc; the first start generates and builds the game locally), or manage installs, updates, and disc/BIOS wiring with
 **[Retro Launcher](https://github.com/RetroPortingToolKit/Retro-Launcher)** —
 the Retro Compilation Manager hub for self-compiling recomps.
 
@@ -63,6 +63,20 @@ Default app icon: `assets/psxrecomp.ico` (and `.png` / `.svg`) — Retro-themed 
 Optional box art under `launcher_assets/img/` may come from
 [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails)
 (`Named_Boxarts`); see `BOXART_SOURCE.txt` when present.
+
+## Release (self-compile kit)
+
+The release zip contains **no game code**: only the runtime setup host, the
+framework tools and OpenBIOS. On first start it asks for your own disc
+(Micro Maniacs PAL, SLES-01921, CUE/BIN with 2 tracks), generates the game C
+locally and builds the playable binary under `build-release/`. Later starts
+go straight to the game. Linux needs a C toolchain (gcc or clang, cmake,
+ninja); otherwise the wizard offers to download a portable one.
+
+Enhancements (all optional, per player unless noted): internal resolution,
+texture filtering, FSR 1 upscaling, dithering off, PGXP, CRT/post effects,
+widescreen 16:9 (mod `mmr.widescreen`; in netplay the host's choice applies
+to everyone), cheats (mod `mmr.cheats`, host's choice in netplay).
 
 ## Quick start (dev)
 

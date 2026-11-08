@@ -37,6 +37,10 @@ committet. Wartet auf OK.
 - 2026-11-05 – Kein Retail-BIOS (OpenBIOS), Netplay an, Lobby-Standard
   ws://netplay.retcomm.net:8765, recomp-ui + Setup-Wizard an, keine CI, kein
   GitHub-Repo, keine Boxart (nachholbar).
+- 2026-11-08 (Nutzer) – Öffentliches Repo github.com/Taktloss/MicroManRecomp;
+  Framework über Fork Taktloss/psxrecomp (Branch micro-maniacs), Submodul-URL
+  zeigt dorthin. Release = Setup-Host-Kit ohne Spielcode (erzeugt beim ersten
+  Start aus der eigenen Disc), keine fertige EXE.
 - 2026-11-05 – Referenzmaterial nach docs/reference/; Video und psx-spx-Kopie
   per .gitignore ausgeschlossen (Fremdmaterial, groß).
 
@@ -546,8 +550,9 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
   Mice N Easy geprüft (Ausscheiden unten); seitliches Ausscheiden auf
   anderen Strecken ungeprüft.
 - ~~Widescreen: fehlende Polygone am linken Rand~~ → gelöst über
-  sxy_read_sites (Phase 6). Netplay mit dem neuen Cull nicht erneut
-  gefahren (vorher beide 16:9 desync 0); andere Strecken nicht geprüft.
+  sxy_read_sites (Phase 6). Netplay mit dem neuen Cull geprüft
+  (2026-11-06: Vs, beide 16:9, x_margin 85 auf beiden, ~4 min desync 0,
+  core_mismatch 0, Bilder beider Peers gleich); andere Strecken ungeprüft.
 - Framework-Werkzeug: wtrace sieht keine Schreibzugriffe aus nativem Code
   (hängt nur am langsamen Speicherpfad). Nicht behoben, Framework-Änderung.
 - Framework-Tests: 13 Recompiler-Tests schlagen schon ohne meine Änderungen

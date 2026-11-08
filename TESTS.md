@@ -85,7 +85,8 @@ vergleichen und Screenshots aus docs/reference/ heranziehen.
 - [ ] Widescreen im Vs-Modus: verhält sich wie in NOTES.md entschieden
       (2026-11-06: Ausscheiden an der 4:3-Grenze wie Original; Netplay:
       Host-Wahl gilt für alle, beide 16:9 ganzes Rennen desync 0,
-      ungleiche Wahl → Sitzung startet nicht)
+      ungleiche Wahl → Sitzung startet nicht; mit sxy_read_sites-Cull
+      erneut ~4 min Vs desync 0)
 - [ ] Optionen über den Launcher änderbar und gespeichert
 
 ## F – Performance
