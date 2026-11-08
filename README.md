@@ -72,8 +72,12 @@ framework tools and OpenBIOS. On first start it asks for your own disc
 locally and builds the playable binary under `build-release/`. Later starts
 go straight to the game. Linux needs CMake, Ninja, Python 3 and gcc/g++ or
 clang/clang++ on PATH (Fedora/Nobara: `sudo dnf install cmake ninja-build
-python3 gcc-c++`); the first build takes a few minutes. Only a Linux x64
-kit is published so far. Packaging: `scripts/package_setup_kit.sh`.
+python3 gcc-c++`); the first build takes a few minutes.
+Windows x64 (10 version 1803 or later) downloads its build toolchain
+(cmake-clang-v1) on first start; under Wine/Proton use the Linux kit instead.
+Kits are built by the *Setup kit* workflow (`.github/workflows/setup-kit.yml`):
+pushing a tag `vX.Y.Z` builds both and attaches them to that release.
+Local packaging: `scripts/package_setup_kit.sh`.
 
 Enhancements (all optional, per player unless noted): internal resolution,
 texture filtering, FSR 1 upscaling, dithering off, PGXP, CRT/post effects,

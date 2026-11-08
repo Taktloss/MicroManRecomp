@@ -571,6 +571,11 @@ geladen. Daten-Track-SHA256 ddfdbf86…a62166.
 ## Sitzungsprotokoll
 <!-- Kurz pro Sitzung, neueste oben. Ältere Einträge gelegentlich
      zusammenfassen, damit die Datei übersichtlich bleibt. -->
+- 2026-11-08 – Workflow .github/workflows/setup-kit.yml baut Linux- und
+  Windows-Kit (Tag vX.Y.Z → Release, sonst Artefakt). Beide an v0.1.0;
+  CI-Linux-Kit mit eigener Disc geprüft (bootet, Weiterleitung), Windows-Kit
+  unter Wine bis Launcher (Toolchain-Download braucht curl.exe = Win10 1803+,
+  Wine hat keins). Nutzer: "läuft gut".
 - 2026-11-08 – Aufgeräumt: Testordner ~/Projects/mmr-release (Disc-Kopie,
   erzeugter Code), build-dev, Netplay-Testpeer build-release/peerB,
   __pycache__ gelöscht; Framework-Branch lokal in micro-maniacs umbenannt.
